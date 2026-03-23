@@ -5,6 +5,7 @@
 // ================================================
 
 require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/auth_controller.php';
 
 // Get rate from settings
 function getRate() {

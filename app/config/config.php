@@ -1,9 +1,4 @@
 <?php
-// ================================================
-// Database Configuration
-// app/config/config.php
-// ================================================
-
 define('DB_HOST', '127.0.0.1');
 define('DB_USER', 'root');
 define('DB_PASS', '');
@@ -16,8 +11,8 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Base URLs
-define('BASE_URL',  'http://localhost/electricity_billing/public/');
-define('ADMIN_URL', 'http://localhost/electricity_billing/public/admin/');
-define('USER_URL',  'http://localhost/electricity_billing/public/user/');
+// Updated base URL to match your actual folder path
+define('BASE_URL',  'http://localhost/Websystem-pit/Electricity-billing-system-2nd-year-2nd-sem/public/');
+define('ADMIN_URL', 'http://localhost/Websystem-pit/Electricity-billing-system-2nd-year-2nd-sem/public/admin/');
+define('USER_URL',  'http://localhost/Websystem-pit/Electricity-billing-system-2nd-year-2nd-sem/public/user/');
 ?>

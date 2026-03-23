@@ -78,7 +78,6 @@ function getUsersDropdown() {
     return $conn->query("
         SELECT id, firstName, lastname, meter_number
         FROM user
-        WHERE status = 'active'
         ORDER BY firstName ASC
     ");
 }
