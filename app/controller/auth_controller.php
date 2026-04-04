@@ -97,13 +97,16 @@ function registerUser($data) {
 
     $stmt = $conn->prepare("
         INSERT INTO user 
-        (uuid, meter_number, firstName, middleName, lastname, emailAddress, username, password, street, barangay, city)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (uuid, meter_number, contact_number, date_of_birth, firstName, middleName, lastname, emailAddress, username, password, street, barangay, city)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
+
     $stmt->bind_param(
-        "sssssssssss",
+        "sssssssssssss",
         $uuid,
         $data['meter_number'],
+        $data['contact_number'],
+        $data['date_of_birth'],
         $data['firstName'],
         $data['middleName'],
         $data['lastname'],

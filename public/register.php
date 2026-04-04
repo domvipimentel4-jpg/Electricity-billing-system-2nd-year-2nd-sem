@@ -26,21 +26,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $error = "Password must be at least 6 characters.";
     } elseif (empty($_POST['firstName']) || empty($_POST['lastname']) ||
               empty($_POST['username']) || empty($_POST['email']) ||
-              empty($_POST['meter_number']) || empty($_POST['street']) ||
+              empty($_POST['meter_number']) || empty($_POST['contact_number']) ||
+              empty($_POST['date_of_birth']) || empty($_POST['street']) ||
               empty($_POST['barangay']) || empty($_POST['city'])) {
         $error = "Please fill in all required fields.";
     } else {
         $data = [
-            'firstName'    => trim($_POST['firstName']),
-            'middleName'   => trim($_POST['middleName']),
-            'lastname'     => trim($_POST['lastname']),
-            'email'        => trim($_POST['email']),
-            'username'     => trim($_POST['username']),
-            'password'     => $_POST['password'],
-            'meter_number' => trim($_POST['meter_number']),
-            'street'       => trim($_POST['street']),
-            'barangay'     => trim($_POST['barangay']),
-            'city'         => trim($_POST['city']),
+            'firstName'      => trim($_POST['firstName']),
+            'middleName'     => trim($_POST['middleName']),
+            'lastname'       => trim($_POST['lastname']),
+            'email'          => trim($_POST['email']),
+            'username'       => trim($_POST['username']),
+            'password'       => $_POST['password'],
+            'meter_number'   => trim($_POST['meter_number']),
+            'contact_number' => trim($_POST['contact_number']),
+            'date_of_birth'  => trim($_POST['date_of_birth']),
+            'street'         => trim($_POST['street']),
+            'barangay'       => trim($_POST['barangay']),
+            'city'           => trim($_POST['city']),
         ];
 
         $result = registerUser($data);
@@ -172,6 +175,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <label class="form-label small fw-semibold">Email Address <span class="text-danger">*</span></label>
                 <input type="email" name="email" class="form-control"
                        value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold">Contact Number <span class="text-danger">*</span></label>
+                <input type="tel" name="contact_number" class="form-control"
+                       value="<?php echo htmlspecialchars($_POST['contact_number'] ?? ''); ?>"
+                       placeholder="e.g. +639171234567" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold">Date of Birth <span class="text-danger">*</span></label>
+                <input type="date" name="date_of_birth" class="form-control"
+                       value="<?php echo htmlspecialchars($_POST['date_of_birth'] ?? ''); ?>" required>
               </div>
               <div class="col-md-6">
                 <label class="form-label small fw-semibold">Meter Number <span class="text-danger">*</span></label>

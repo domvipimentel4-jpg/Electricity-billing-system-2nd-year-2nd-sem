@@ -20,18 +20,21 @@ $user = getUserById($user_id);
 // Handle profile update
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'update_profile') {
     if (empty($_POST['firstName']) || empty($_POST['lastname']) ||
-        empty($_POST['email']) || empty($_POST['street']) ||
+        empty($_POST['email']) || empty($_POST['contact_number']) ||
+        empty($_POST['date_of_birth']) || empty($_POST['street']) ||
         empty($_POST['barangay']) || empty($_POST['city'])) {
         $error = "Please fill in all required fields.";
     } else {
         $data = [
-            'firstName'  => trim($_POST['firstName']),
-            'middleName' => trim($_POST['middleName']),
-            'lastname'   => trim($_POST['lastname']),
-            'email'      => trim($_POST['email']),
-            'street'     => trim($_POST['street']),
-            'barangay'   => trim($_POST['barangay']),
-            'city'       => trim($_POST['city']),
+            'firstName'      => trim($_POST['firstName']),
+            'middleName'     => trim($_POST['middleName']),
+            'lastname'       => trim($_POST['lastname']),
+            'email'          => trim($_POST['email']),
+            'contact_number' => trim($_POST['contact_number']),
+            'date_of_birth'  => trim($_POST['date_of_birth']),
+            'street'         => trim($_POST['street']),
+            'barangay'       => trim($_POST['barangay']),
+            'city'           => trim($_POST['city']),
         ];
         $result = updateUserProfile($user_id, $data);
         if ($result['success']) {
@@ -126,6 +129,17 @@ require_once __DIR__ . '/includes/header.php';
                     <label class="form-label fw-semibold small">Email Address <span class="text-danger">*</span></label>
                     <input type="email" name="email" class="form-control"
                            value="<?php echo htmlspecialchars($user['emailAddress']); ?>" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Contact Number <span class="text-danger">*</span></label>
+                    <input type="tel" name="contact_number" class="form-control"
+                           value="<?php echo htmlspecialchars($user['contact_number'] ?? ''); ?>"
+                           placeholder="e.g. +639171234567" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Date of Birth <span class="text-danger">*</span></label>
+                    <input type="date" name="date_of_birth" class="form-control"
+                           value="<?php echo htmlspecialchars($user['date_of_birth'] ?? ''); ?>" required>
                   </div>
                   <div class="col-md-6">
                     <label class="form-label fw-semibold small">Meter Number</label>
