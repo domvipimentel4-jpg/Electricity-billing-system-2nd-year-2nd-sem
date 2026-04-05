@@ -72,6 +72,8 @@ require_once __DIR__ . '/includes/header.php';
                   <th>Name</th>
                   <th>Username</th>
                   <th>Email</th>
+                  <th>Contact</th>
+                  <th>Date of Birth</th>
                   <th>Meter No.</th>
                   <th>Address</th>
                   <th>Bills</th>
@@ -91,6 +93,8 @@ require_once __DIR__ . '/includes/header.php';
                   </td>
                   <td><?php echo htmlspecialchars($row['username']); ?></td>
                   <td><?php echo htmlspecialchars($row['emailAddress']); ?></td>
+                  <td><?php echo htmlspecialchars($row['contactNumber'] ?? 'N/A'); ?></td>
+                  <td><?php echo $row['dateOfBirth'] ? date('M d, Y', strtotime($row['dateOfBirth'])) : 'N/A'; ?></td>
                   <td><?php echo htmlspecialchars($row['meter_number'] ?? 'N/A'); ?></td>
                   <td class="small">
                     <?php echo htmlspecialchars($row['barangay'] . ', ' . $row['city']); ?>

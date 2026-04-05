@@ -96,11 +96,11 @@ function registerUser($data) {
     $password = password_hash($data['password'], PASSWORD_DEFAULT);
 
     $stmt = $conn->prepare("
-        INSERT INTO user 
-        (uuid, meter_number, contact_number, date_of_birth, firstName, middleName, lastname, emailAddress, username, password, street, barangay, city)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ");
-
+    INSERT INTO user 
+    (uuid, meter_number, firstName, middleName, lastname, emailAddress,
+     contactNumber, dateOfBirth, username, password, street, barangay, city)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+");
     $stmt->bind_param(
         "sssssssssssss",
         $uuid,
@@ -111,6 +111,8 @@ function registerUser($data) {
         $data['middleName'],
         $data['lastname'],
         $data['email'],
+        $data['contact'],
+        $data['dateOfBirth'],
         $data['username'],
         $password,
         $data['street'],

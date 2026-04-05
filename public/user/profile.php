@@ -14,27 +14,25 @@ $user_id    = $_SESSION['user_id'];
 $success    = "";
 $error      = "";
 
-// Get current user data
 $user = getUserById($user_id);
 
 // Handle profile update
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'update_profile') {
     if (empty($_POST['firstName']) || empty($_POST['lastname']) ||
-        empty($_POST['email']) || empty($_POST['contact_number']) ||
-        empty($_POST['date_of_birth']) || empty($_POST['street']) ||
-        empty($_POST['barangay']) || empty($_POST['city'])) {
+        empty($_POST['email'])     || empty($_POST['street'])   ||
+        empty($_POST['barangay'])  || empty($_POST['city'])) {
         $error = "Please fill in all required fields.";
     } else {
         $data = [
-            'firstName'      => trim($_POST['firstName']),
-            'middleName'     => trim($_POST['middleName']),
-            'lastname'       => trim($_POST['lastname']),
-            'email'          => trim($_POST['email']),
-            'contact_number' => trim($_POST['contact_number']),
-            'date_of_birth'  => trim($_POST['date_of_birth']),
-            'street'         => trim($_POST['street']),
-            'barangay'       => trim($_POST['barangay']),
-            'city'           => trim($_POST['city']),
+            'firstName'   => trim($_POST['firstName']),
+            'middleName'  => trim($_POST['middleName']),
+            'lastname'    => trim($_POST['lastname']),
+            'email'       => trim($_POST['email']),
+            'contact'     => trim($_POST['contact']),
+            'dateOfBirth' => trim($_POST['dateOfBirth']),
+            'street'      => trim($_POST['street']),
+            'barangay'    => trim($_POST['barangay']),
+            'city'        => trim($_POST['city']),
         ];
         $result = updateUserProfile($user_id, $data);
         if ($result['success']) {
@@ -48,9 +46,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
 
 // Handle password change
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'change_password') {
-    $current  = $_POST['current_password'];
-    $new      = $_POST['new_password'];
-    $confirm  = $_POST['confirm_password'];
+    $current = $_POST['current_password'];
+    $new     = $_POST['new_password'];
+    $confirm = $_POST['confirm_password'];
 
     if (empty($current) || empty($new) || empty($confirm)) {
         $error = "Please fill in all password fields.";
@@ -63,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
     } else {
         global $conn;
         $hashed = password_hash($new, PASSWORD_DEFAULT);
-        $stmt   = $conn->prepare("UPDATE user SET password = ? WHERE id = ?");
+        $stmt   = $conn->prepare("UPDATE `user` SET password = ? WHERE id = ?");
         $stmt->bind_param("si", $hashed, $user_id);
         if ($stmt->execute()) {
             $success = "Password changed successfully!";
@@ -93,14 +91,15 @@ require_once __DIR__ . '/includes/header.php';
 
       <?php if ($error): ?>
         <div class="alert alert-danger alert-dismissible fade show">
-          <i class="bi bi-exclamation-circle me-2"></i><?php echo htmlspecialchars($error); ?>
+          <i class="bi bi-exclamation-circle me-2"></i>
+          <?php echo htmlspecialchars($error); ?>
           <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
       <?php endif; ?>
 
       <div class="row g-4">
 
-        <!-- Profile Info -->
+        <!-- Left: Edit Profile Form -->
         <div class="col-md-8">
           <div class="card">
             <div class="card-header">
@@ -110,10 +109,14 @@ require_once __DIR__ . '/includes/header.php';
               <form method="POST">
                 <input type="hidden" name="action" value="update_profile">
                 <div class="row g-3">
+
                   <div class="col-md-4">
-                    <label class="form-label fw-semibold small">First Name <span class="text-danger">*</span></label>
+                    <label class="form-label fw-semibold small">
+                      First Name <span class="text-danger">*</span>
+                    </label>
                     <input type="text" name="firstName" class="form-control"
-                           value="<?php echo htmlspecialchars($user['firstName']); ?>" required>
+                           value="<?php echo htmlspecialchars($user['firstName']); ?>"
+                           required>
                   </div>
                   <div class="col-md-4">
                     <label class="form-label fw-semibold small">Middle Name</label>
@@ -121,15 +124,52 @@ require_once __DIR__ . '/includes/header.php';
                            value="<?php echo htmlspecialchars($user['middleName'] ?? ''); ?>">
                   </div>
                   <div class="col-md-4">
-                    <label class="form-label fw-semibold small">Last Name <span class="text-danger">*</span></label>
+                    <label class="form-label fw-semibold small">
+                      Last Name <span class="text-danger">*</span>
+                    </label>
                     <input type="text" name="lastname" class="form-control"
-                           value="<?php echo htmlspecialchars($user['lastname']); ?>" required>
+                           value="<?php echo htmlspecialchars($user['lastname']); ?>"
+                           required>
                   </div>
+
                   <div class="col-md-6">
-                    <label class="form-label fw-semibold small">Email Address <span class="text-danger">*</span></label>
-                    <input type="email" name="email" class="form-control"
-                           value="<?php echo htmlspecialchars($user['emailAddress']); ?>" required>
+                    <label class="form-label fw-semibold small">
+                      Email Address <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-group">
+                      <span class="input-group-text">
+                        <i class="bi bi-envelope text-muted"></i>
+                      </span>
+                      <input type="email" name="email" class="form-control"
+                             value="<?php echo htmlspecialchars($user['emailAddress']); ?>"
+                             required>
+                    </div>
                   </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Contact Number</label>
+                    <div class="input-group">
+                      <span class="input-group-text">
+                        <i class="bi bi-telephone text-muted"></i>
+                      </span>
+                      <input type="tel" name="contact" class="form-control"
+                             placeholder="e.g. +639171234567"
+                             value="<?php echo htmlspecialchars($user['contactNumber'] ?? ''); ?>">
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Date of Birth</label>
+                    <div class="input-group">
+                      <span class="input-group-text">
+                        <i class="bi bi-calendar text-muted"></i>
+                      </span>
+                      <input type="date" name="dateOfBirth" class="form-control"
+                             value="<?php echo htmlspecialchars($user['dateOfBirth'] ?? ''); ?>"
+                             max="<?php echo date('Y-m-d', strtotime('-18 years')); ?>">
+                    </div>
+                  </div>
+
                   <div class="col-md-6">
                     <label class="form-label fw-semibold small">Contact Number <span class="text-danger">*</span></label>
                     <input type="tel" name="contact_number" class="form-control"
@@ -143,25 +183,37 @@ require_once __DIR__ . '/includes/header.php';
                   </div>
                   <div class="col-md-6">
                     <label class="form-label fw-semibold small">Meter Number</label>
-                    <input type="text" class="form-control"
-                           value="<?php echo htmlspecialchars($user['meter_number'] ?? 'N/A'); ?>" disabled>
+                    <input type="text" class="form-control bg-light"
+                           value="<?php echo htmlspecialchars($user['meter_number'] ?? 'N/A'); ?>"
+                           disabled>
                     <div class="form-text">Contact admin to change meter number</div>
                   </div>
+
                   <div class="col-12">
-                    <label class="form-label fw-semibold small">Street <span class="text-danger">*</span></label>
+                    <label class="form-label fw-semibold small">
+                      Street <span class="text-danger">*</span>
+                    </label>
                     <input type="text" name="street" class="form-control"
-                           value="<?php echo htmlspecialchars($user['street']); ?>" required>
+                           value="<?php echo htmlspecialchars($user['street']); ?>"
+                           required>
                   </div>
                   <div class="col-md-6">
-                    <label class="form-label fw-semibold small">Barangay <span class="text-danger">*</span></label>
+                    <label class="form-label fw-semibold small">
+                      Barangay <span class="text-danger">*</span>
+                    </label>
                     <input type="text" name="barangay" class="form-control"
-                           value="<?php echo htmlspecialchars($user['barangay']); ?>" required>
+                           value="<?php echo htmlspecialchars($user['barangay']); ?>"
+                           required>
                   </div>
                   <div class="col-md-6">
-                    <label class="form-label fw-semibold small">City <span class="text-danger">*</span></label>
+                    <label class="form-label fw-semibold small">
+                      City <span class="text-danger">*</span>
+                    </label>
                     <input type="text" name="city" class="form-control"
-                           value="<?php echo htmlspecialchars($user['city']); ?>" required>
+                           value="<?php echo htmlspecialchars($user['city']); ?>"
+                           required>
                   </div>
+
                 </div>
                 <button type="submit" class="btn btn-primary mt-3">
                   <i class="bi bi-save me-2"></i>Save Changes
@@ -171,38 +223,67 @@ require_once __DIR__ . '/includes/header.php';
           </div>
         </div>
 
-        <!-- Account Info + Change Password -->
+        <!-- Right: Account Info + Change Password -->
         <div class="col-md-4">
-          <!-- Account summary -->
+
+          <!-- Account Info Card -->
           <div class="card mb-3">
             <div class="card-header">
               <i class="bi bi-person-badge me-2"></i>Account Info
             </div>
             <div class="card-body">
+
               <div class="mb-2">
                 <small class="text-muted">Username</small>
                 <p class="fw-semibold mb-0">
                   <?php echo htmlspecialchars($user['username']); ?>
                 </p>
               </div>
+
+              <div class="mb-2">
+                <small class="text-muted">Contact Number</small>
+                <p class="fw-semibold mb-0">
+                  <?php if (!empty($user['contactNumber'])): ?>
+                    <i class="bi bi-telephone text-success me-1"></i>
+                    <?php echo htmlspecialchars($user['contactNumber']); ?>
+                  <?php else: ?>
+                    <span class="text-muted fst-italic small">Not set yet</span>
+                  <?php endif; ?>
+                </p>
+              </div>
+
+              <div class="mb-2">
+                <small class="text-muted">Date of Birth</small>
+                <p class="fw-semibold mb-0">
+                  <?php if (!empty($user['dateOfBirth'])): ?>
+                    <i class="bi bi-calendar text-primary me-1"></i>
+                    <?php echo date('F d, Y', strtotime($user['dateOfBirth'])); ?>
+                  <?php else: ?>
+                    <span class="text-muted fst-italic small">Not set yet</span>
+                  <?php endif; ?>
+                </p>
+              </div>
+
               <div class="mb-2">
                 <small class="text-muted">Status</small>
                 <p class="mb-0">
                   <span class="badge bg-success">
-                    <?php echo ucfirst($user['status']); ?>
+                    <?php echo ucfirst($user['status'] ?? 'active'); ?>
                   </span>
                 </p>
               </div>
+
               <div>
                 <small class="text-muted">Member Since</small>
                 <p class="fw-semibold mb-0">
                   <?php echo date('F d, Y', strtotime($user['dateCreated'])); ?>
                 </p>
               </div>
+
             </div>
           </div>
 
-          <!-- Change Password -->
+          <!-- Change Password Card -->
           <div class="card">
             <div class="card-header">
               <i class="bi bi-shield-lock me-2"></i>Change Password
@@ -218,7 +299,8 @@ require_once __DIR__ . '/includes/header.php';
                 <div class="mb-3">
                   <label class="form-label fw-semibold small">New Password</label>
                   <input type="password" name="new_password"
-                         class="form-control" placeholder="Min. 6 characters" required>
+                         class="form-control"
+                         placeholder="Min. 6 characters" required>
                 </div>
                 <div class="mb-3">
                   <label class="form-label fw-semibold small">Confirm New Password</label>
@@ -231,8 +313,8 @@ require_once __DIR__ . '/includes/header.php';
               </form>
             </div>
           </div>
-        </div>
 
+        </div>
       </div>
     </div>
   </div>
