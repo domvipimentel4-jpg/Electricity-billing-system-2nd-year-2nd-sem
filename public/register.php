@@ -9,7 +9,6 @@ require_once __DIR__ . '/../app/controller/auth_controller.php';
 
 if (session_status() === PHP_SESSION_NONE) session_start();
 
-// Redirect if already logged in
 if (isset($_SESSION['user_id'])) {
     header("Location: user/dashboard.php");
     exit();
@@ -19,15 +18,22 @@ $success = "";
 $error   = "";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Validate passwords match
     if ($_POST['password'] !== $_POST['confirm_password']) {
         $error = "Passwords do not match.";
     } elseif (strlen($_POST['password']) < 6) {
         $error = "Password must be at least 6 characters.";
-    } elseif (empty($_POST['firstName']) || empty($_POST['lastname']) ||
-              empty($_POST['username']) || empty($_POST['email']) ||
-              empty($_POST['meter_number']) || empty($_POST['street']) ||
-              empty($_POST['barangay']) || empty($_POST['city'])) {
+    } elseif (
+        empty($_POST['firstName'])    ||
+        empty($_POST['lastname'])     ||
+        empty($_POST['email'])        ||
+        empty($_POST['contact'])      ||
+        empty($_POST['dateOfBirth'])  ||
+        empty($_POST['meter_number']) ||
+        empty($_POST['username'])     ||
+        empty($_POST['street'])       ||
+        empty($_POST['barangay'])     ||
+        empty($_POST['city'])
+    ) {
         $error = "Please fill in all required fields.";
     } else {
         $data = [
@@ -35,6 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             'middleName'   => trim($_POST['middleName']),
             'lastname'     => trim($_POST['lastname']),
             'email'        => trim($_POST['email']),
+            'contact'      => trim($_POST['contact']),
+            'dateOfBirth'  => trim($_POST['dateOfBirth']),
             'username'     => trim($_POST['username']),
             'password'     => $_POST['password'],
             'meter_number' => trim($_POST['meter_number']),
@@ -109,11 +117,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         font-weight: 600;
         color: #fff;
         width: 100%;
+        transition: all 0.2s;
     }
     .btn-register:hover {
         color: #fff;
         transform: translateY(-1px);
         box-shadow: 0 4px 14px rgba(37,99,235,0.4);
+    }
+    .input-group-text {
+        background: #f1f5f9;
+        border: 1.5px solid #e2e8f0;
+        color: #64748b;
     }
   </style>
 </head>
@@ -121,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <div class="container">
   <div class="row justify-content-center">
-    <div class="col-md-7">
+    <div class="col-md-8">
       <div class="card register-card">
         <div class="card-body">
 
@@ -134,29 +148,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
           <?php if ($success): ?>
             <div class="alert alert-success d-flex align-items-center gap-2">
-              <i class="bi bi-check-circle-fill"></i>
-              <?php echo $success; ?>
-              <a href="index.php" class="ms-auto btn btn-success btn-sm">Login Now</a>
+              <i class="bi bi-check-circle-fill fs-5"></i>
+              <div>
+                <?php echo $success; ?>
+                <a href="index.php" class="ms-2 btn btn-success btn-sm">Login Now</a>
+              </div>
             </div>
           <?php endif; ?>
 
           <?php if ($error): ?>
             <div class="alert alert-danger d-flex align-items-center gap-2">
-              <i class="bi bi-exclamation-circle-fill"></i>
+              <i class="bi bi-exclamation-circle-fill fs-5"></i>
               <?php echo htmlspecialchars($error); ?>
             </div>
           <?php endif; ?>
 
           <form method="POST">
 
+            <!-- Personal Information -->
             <div class="section-title">
               <i class="bi bi-person me-1"></i> Personal Information
             </div>
             <div class="row g-3">
               <div class="col-md-4">
-                <label class="form-label small fw-semibold">First Name <span class="text-danger">*</span></label>
+                <label class="form-label small fw-semibold">
+                  First Name <span class="text-danger">*</span>
+                </label>
                 <input type="text" name="firstName" class="form-control"
-                       value="<?php echo htmlspecialchars($_POST['firstName'] ?? ''); ?>" required>
+                       value="<?php echo htmlspecialchars($_POST['firstName'] ?? ''); ?>"
+                       required>
               </div>
               <div class="col-md-4">
                 <label class="form-label small fw-semibold">Middle Name</label>
@@ -164,61 +184,153 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                        value="<?php echo htmlspecialchars($_POST['middleName'] ?? ''); ?>">
               </div>
               <div class="col-md-4">
-                <label class="form-label small fw-semibold">Last Name <span class="text-danger">*</span></label>
+                <label class="form-label small fw-semibold">
+                  Last Name <span class="text-danger">*</span>
+                </label>
                 <input type="text" name="lastname" class="form-control"
-                       value="<?php echo htmlspecialchars($_POST['lastname'] ?? ''); ?>" required>
+                       value="<?php echo htmlspecialchars($_POST['lastname'] ?? ''); ?>"
+                       required>
               </div>
               <div class="col-md-6">
-                <label class="form-label small fw-semibold">Email Address <span class="text-danger">*</span></label>
-                <input type="email" name="email" class="form-control"
-                       value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" required>
+                <label class="form-label small fw-semibold">
+                  Email Address <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="bi bi-envelope text-muted"></i>
+                  </span>
+                  <input type="email" name="email" class="form-control"
+                         placeholder="e.g. juan@gmail.com"
+                         value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>"
+                         required>
+                </div>
               </div>
               <div class="col-md-6">
-                <label class="form-label small fw-semibold">Meter Number <span class="text-danger">*</span></label>
-                <input type="text" name="meter_number" class="form-control"
-                       value="<?php echo htmlspecialchars($_POST['meter_number'] ?? ''); ?>"
-                       placeholder="e.g. MTR-001" required>
+                <label class="form-label small fw-semibold">
+                  Contact Number <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="bi bi-telephone text-muted"></i>
+                  </span>
+                  <input type="tel" name="contact" class="form-control"
+                         placeholder="e.g. +639171234567"
+                         value="<?php echo htmlspecialchars($_POST['contact'] ?? ''); ?>"
+                         required>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold">
+                  Date of Birth <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="bi bi-calendar text-muted"></i>
+                  </span>
+                  <input type="date" name="dateOfBirth" class="form-control"
+                         value="<?php echo htmlspecialchars($_POST['dateOfBirth'] ?? ''); ?>"
+                         max="<?php echo date('Y-m-d', strtotime('-18 years')); ?>"
+                         required>
+                </div>
+                <div class="form-text">Must be 18 years or older</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold">
+                  Meter Number <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="bi bi-lightning text-muted"></i>
+                  </span>
+                  <input type="text" name="meter_number" class="form-control"
+                         placeholder="e.g. MTR-001"
+                         value="<?php echo htmlspecialchars($_POST['meter_number'] ?? ''); ?>"
+                         required>
+                </div>
               </div>
             </div>
 
+            <!-- Address -->
             <div class="section-title">
               <i class="bi bi-geo-alt me-1"></i> Address
             </div>
             <div class="row g-3">
               <div class="col-md-4">
-                <label class="form-label small fw-semibold">Street <span class="text-danger">*</span></label>
+                <label class="form-label small fw-semibold">
+                  Street <span class="text-danger">*</span>
+                </label>
                 <input type="text" name="street" class="form-control"
-                       value="<?php echo htmlspecialchars($_POST['street'] ?? ''); ?>" required>
+                       value="<?php echo htmlspecialchars($_POST['street'] ?? ''); ?>"
+                       required>
               </div>
               <div class="col-md-4">
-                <label class="form-label small fw-semibold">Barangay <span class="text-danger">*</span></label>
+                <label class="form-label small fw-semibold">
+                  Barangay <span class="text-danger">*</span>
+                </label>
                 <input type="text" name="barangay" class="form-control"
-                       value="<?php echo htmlspecialchars($_POST['barangay'] ?? ''); ?>" required>
+                       value="<?php echo htmlspecialchars($_POST['barangay'] ?? ''); ?>"
+                       required>
               </div>
               <div class="col-md-4">
-                <label class="form-label small fw-semibold">City <span class="text-danger">*</span></label>
+                <label class="form-label small fw-semibold">
+                  City <span class="text-danger">*</span>
+                </label>
                 <input type="text" name="city" class="form-control"
-                       value="<?php echo htmlspecialchars($_POST['city'] ?? ''); ?>" required>
+                       value="<?php echo htmlspecialchars($_POST['city'] ?? ''); ?>"
+                       required>
               </div>
             </div>
 
+            <!-- Account Credentials -->
             <div class="section-title">
               <i class="bi bi-shield-lock me-1"></i> Account Credentials
             </div>
             <div class="row g-3">
               <div class="col-md-4">
-                <label class="form-label small fw-semibold">Username <span class="text-danger">*</span></label>
-                <input type="text" name="username" class="form-control"
-                       value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>" required>
+                <label class="form-label small fw-semibold">
+                  Username <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="bi bi-person text-muted"></i>
+                  </span>
+                  <input type="text" name="username" class="form-control"
+                         value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>"
+                         required>
+                </div>
               </div>
               <div class="col-md-4">
-                <label class="form-label small fw-semibold">Password <span class="text-danger">*</span></label>
-                <input type="password" name="password" class="form-control"
-                       placeholder="Min. 6 characters" required>
+                <label class="form-label small fw-semibold">
+                  Password <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="bi bi-lock text-muted"></i>
+                  </span>
+                  <input type="password" name="password" id="password"
+                         class="form-control border-end-0"
+                         placeholder="Min. 6 characters" required>
+                  <button type="button" class="toggle-pwd input-group-text"
+                          data-target="password" style="cursor:pointer;">
+                    <i class="bi bi-eye-slash"></i>
+                  </button>
+                </div>
               </div>
               <div class="col-md-4">
-                <label class="form-label small fw-semibold">Confirm Password <span class="text-danger">*</span></label>
-                <input type="password" name="confirm_password" class="form-control" required>
+                <label class="form-label small fw-semibold">
+                  Confirm Password <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="bi bi-lock text-muted"></i>
+                  </span>
+                  <input type="password" name="confirm_password" id="confirm_password"
+                         class="form-control border-end-0" required>
+                  <button type="button" class="toggle-pwd input-group-text"
+                          data-target="confirm_password" style="cursor:pointer;">
+                    <i class="bi bi-eye-slash"></i>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -241,5 +353,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Toggle password visibility for both password fields
+document.querySelectorAll('.toggle-pwd').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        const targetId = this.getAttribute('data-target');
+        const input    = document.getElementById(targetId);
+        const icon     = this.querySelector('i');
+        const isHidden = input.type === 'password';
+        input.type     = isHidden ? 'text' : 'password';
+        icon.className = isHidden ? 'bi bi-eye' : 'bi bi-eye-slash';
+    });
+});
+</script>
+
 </body>
 </html>
