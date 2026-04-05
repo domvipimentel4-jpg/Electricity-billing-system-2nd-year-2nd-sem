@@ -171,6 +171,17 @@ require_once __DIR__ . '/includes/header.php';
                   </div>
 
                   <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Contact Number <span class="text-danger">*</span></label>
+                    <input type="tel" name="contact_number" class="form-control"
+                           value="<?php echo htmlspecialchars($user['contact_number'] ?? ''); ?>"
+                           placeholder="e.g. +639171234567" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Date of Birth <span class="text-danger">*</span></label>
+                    <input type="date" name="date_of_birth" class="form-control"
+                           value="<?php echo htmlspecialchars($user['date_of_birth'] ?? ''); ?>" required>
+                  </div>
+                  <div class="col-md-6">
                     <label class="form-label fw-semibold small">Meter Number</label>
                     <input type="text" class="form-control bg-light"
                            value="<?php echo htmlspecialchars($user['meter_number'] ?? 'N/A'); ?>"

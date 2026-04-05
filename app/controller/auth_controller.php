@@ -105,6 +105,8 @@ function registerUser($data) {
         "sssssssssssss",
         $uuid,
         $data['meter_number'],
+        $data['contact_number'],
+        $data['date_of_birth'],
         $data['firstName'],
         $data['middleName'],
         $data['lastname'],

@@ -43,15 +43,17 @@ function updateUserProfile($id, $data) {
     $stmt = $conn->prepare("
         UPDATE user SET
         firstName = ?, middleName = ?, lastname = ?,
-        emailAddress = ?, street = ?, barangay = ?, city = ?
+        emailAddress = ?, contact_number = ?, date_of_birth = ?, street = ?, barangay = ?, city = ?
         WHERE id = ?
     ");
     $stmt->bind_param(
-        "sssssssi",
+        "sssssssssi",
         $data['firstName'],
         $data['middleName'],
         $data['lastname'],
         $data['email'],
+        $data['contact_number'],
+        $data['date_of_birth'],
         $data['street'],
         $data['barangay'],
         $data['city'],
