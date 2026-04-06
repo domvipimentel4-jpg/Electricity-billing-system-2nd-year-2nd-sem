@@ -56,19 +56,19 @@ require_once __DIR__ . '/includes/header.php';
           <div class="card">
             <div class="card-header">
               <i class="bi bi-plus-circle me-2"></i>Add New Bill
-            </div>
-            <div class="card-body p-4">
+              </div>
+              <div class="card-body p-4">
 
-              <?php if ($success): ?>
-                <div class="alert alert-success">
-                  <i class="bi bi-check-circle me-2"></i><?php echo $success; ?>
-                </div>
-                <a href="add_bill.php" class="btn btn-primary me-2">
-                  <i class="bi bi-plus me-1"></i>Add Another Bill
-                </a>
-                <a href="view_bills.php" class="btn btn-outline-secondary">
-                  <i class="bi bi-receipt me-1"></i>View All Bills
-                </a>
+                <?php if ($success): ?>
+                  <div class="alert alert-success">
+                    <i class="bi bi-check-circle me-2"></i><?php echo $success; ?>
+                  </div>
+                  <a href="add_bill.php" class="btn btn-primary me-2">
+                    <i class="bi bi-plus me-1"></i>Add Another Bill
+                  </a>
+                  <a href="view_bills.php" class="btn btn-outline-secondary">
+                    <i class="bi bi-receipt me-1"></i>View All Bills
+                  </a>
 
               <?php else: ?>
 
