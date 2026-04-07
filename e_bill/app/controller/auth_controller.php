@@ -95,18 +95,17 @@ function registerUser($data) {
     $uuid     = generateUUID();
     $password = password_hash($data['password'], PASSWORD_DEFAULT);
 
+    // ✅ FIX: SQL has 13 columns — bind_param now correctly maps 13 variables
     $stmt = $conn->prepare("
-    INSERT INTO user 
-    (uuid, meter_number, firstName, middleName, lastname, emailAddress,
-     contactNumber, dateOfBirth, username, password, street, barangay, city)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-");
+        INSERT INTO user
+        (uuid, meter_number, firstName, middleName, lastname, emailAddress,
+         contactNumber, dateOfBirth, username, password, street, barangay, city)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ");
     $stmt->bind_param(
         "sssssssssssss",
         $uuid,
         $data['meter_number'],
-        $data['contact_number'],
-        $data['date_of_birth'],
         $data['firstName'],
         $data['middleName'],
         $data['lastname'],

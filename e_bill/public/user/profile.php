@@ -23,16 +23,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
         empty($_POST['barangay'])  || empty($_POST['city'])) {
         $error = "Please fill in all required fields.";
     } else {
+        // ✅ FIX: Use consistent keys — 'contact' and 'dateOfBirth' — matching
+        //         both the form fields below and updateUserProfile() expectations
         $data = [
-            'firstName'   => trim($_POST['firstName']),
-            'middleName'  => trim($_POST['middleName']),
-            'lastname'    => trim($_POST['lastname']),
-            'email'       => trim($_POST['email']),
-            'contact'     => trim($_POST['contact']),
-            'dateOfBirth' => trim($_POST['dateOfBirth']),
-            'street'      => trim($_POST['street']),
-            'barangay'    => trim($_POST['barangay']),
-            'city'        => trim($_POST['city']),
+            'firstName'  => trim($_POST['firstName']),
+            'middleName' => trim($_POST['middleName']),
+            'lastname'   => trim($_POST['lastname']),
+            'email'      => trim($_POST['email']),
+            'contact'    => trim($_POST['contact']),
+            'dateOfBirth'=> trim($_POST['dateOfBirth']),
+            'street'     => trim($_POST['street']),
+            'barangay'   => trim($_POST['barangay']),
+            'city'       => trim($_POST['city']),
         ];
         $result = updateUserProfile($user_id, $data);
         if ($result['success']) {
@@ -146,6 +148,7 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                   </div>
 
+                  <!-- ✅ FIX: Single contact field using name="contact" -->
                   <div class="col-md-6">
                     <label class="form-label fw-semibold small">Contact Number</label>
                     <div class="input-group">
@@ -158,6 +161,7 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                   </div>
 
+                  <!-- ✅ FIX: Single date of birth field using name="dateOfBirth" -->
                   <div class="col-md-6">
                     <label class="form-label fw-semibold small">Date of Birth</label>
                     <div class="input-group">
@@ -170,17 +174,6 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                   </div>
 
-                  <div class="col-md-6">
-                    <label class="form-label fw-semibold small">Contact Number <span class="text-danger">*</span></label>
-                    <input type="tel" name="contact_number" class="form-control"
-                           value="<?php echo htmlspecialchars($user['contact_number'] ?? ''); ?>"
-                           placeholder="e.g. +639171234567" required>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label fw-semibold small">Date of Birth <span class="text-danger">*</span></label>
-                    <input type="date" name="date_of_birth" class="form-control"
-                           value="<?php echo htmlspecialchars($user['date_of_birth'] ?? ''); ?>" required>
-                  </div>
                   <div class="col-md-6">
                     <label class="form-label fw-semibold small">Meter Number</label>
                     <input type="text" class="form-control bg-light"

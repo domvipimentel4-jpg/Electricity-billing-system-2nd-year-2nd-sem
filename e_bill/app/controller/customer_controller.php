@@ -40,10 +40,14 @@ function updateUserStatus($id, $status) {
 // Update user profile
 function updateUserProfile($id, $data) {
     global $conn;
+
+    // ✅ FIX: Use correct DB column names (contactNumber, dateOfBirth)
+    //         and correct $data keys that match what profile.php sends
     $stmt = $conn->prepare("
         UPDATE user SET
         firstName = ?, middleName = ?, lastname = ?,
-        emailAddress = ?, contact_number = ?, date_of_birth = ?, street = ?, barangay = ?, city = ?
+        emailAddress = ?, contactNumber = ?, dateOfBirth = ?,
+        street = ?, barangay = ?, city = ?
         WHERE id = ?
     ");
     $stmt->bind_param(
@@ -52,8 +56,8 @@ function updateUserProfile($id, $data) {
         $data['middleName'],
         $data['lastname'],
         $data['email'],
-        $data['contact_number'],
-        $data['date_of_birth'],
+        $data['contact'],       // form sends name="contact"
+        $data['dateOfBirth'],   // form sends name="dateOfBirth"
         $data['street'],
         $data['barangay'],
         $data['city'],
