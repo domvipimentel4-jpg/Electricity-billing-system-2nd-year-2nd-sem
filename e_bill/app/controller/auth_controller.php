@@ -12,7 +12,6 @@ require_once __DIR__ . '/../config/config.php';
 function loginUser($username, $password) {
     global $conn;
 
-    // Check admin table first
     $stmt = $conn->prepare("SELECT * FROM admin WHERE username = ?");
     $stmt->bind_param("s", $username);
     $stmt->execute();
@@ -22,17 +21,16 @@ function loginUser($username, $password) {
         $admin = $result->fetch_assoc();
         if (password_verify($password, $admin['password'])) {
             if (session_status() === PHP_SESSION_NONE) session_start();
-            $_SESSION['admin_id']        = $admin['id'];
-            $_SESSION['admin_username']  = $admin['username'];
-            $_SESSION['admin_name']      = $admin['firstName'] . ' ' . $admin['lastname'];
-            $_SESSION['role']            = 'admin';
+            $_SESSION['admin_id']       = $admin['id'];
+            $_SESSION['admin_username'] = $admin['username'];
+            $_SESSION['admin_name']     = $admin['firstName'] . ' ' . $admin['lastname'];
+            $_SESSION['role']           = 'admin';
             return ['success' => true, 'role' => 'admin'];
         } else {
             return ['success' => false, 'error' => 'Incorrect password. Please try again.'];
         }
     }
 
-    // Check user table
     $stmt2 = $conn->prepare("SELECT * FROM user WHERE username = ?");
     $stmt2->bind_param("s", $username);
     $stmt2->execute();
@@ -45,11 +43,12 @@ function loginUser($username, $password) {
                 return ['success' => false, 'error' => 'Your account is inactive. Please contact the administrator.'];
             }
             if (session_status() === PHP_SESSION_NONE) session_start();
-            $_SESSION['user_id']       = $user['id'];
-            $_SESSION['user_username'] = $user['username'];
-            $_SESSION['user_name']     = $user['firstName'] . ' ' . $user['lastname'];
-            $_SESSION['user_email']    = $user['emailAddress'];
-            $_SESSION['role']          = 'user';
+            $_SESSION['user_id']              = $user['id'];
+            $_SESSION['user_username']        = $user['username'];
+            $_SESSION['user_name']            = $user['firstName'] . ' ' . $user['lastname'];
+            $_SESSION['user_email']           = $user['emailAddress'];
+            $_SESSION['user_profile_picture'] = $user['profile_picture'] ?? null;
+            $_SESSION['role']                 = 'user';
             return ['success' => true, 'role' => 'user'];
         } else {
             return ['success' => false, 'error' => 'Incorrect password. Please try again.'];
@@ -60,9 +59,9 @@ function loginUser($username, $password) {
 }
 
 // -----------------------------------------------
-// Register new user
+// Register new user (with optional profile picture)
 // -----------------------------------------------
-function registerUser($data) {
+function registerUser($data, $file = null) {
     global $conn;
 
     // Check duplicate username
@@ -95,17 +94,48 @@ function registerUser($data) {
     $uuid     = generateUUID();
     $password = password_hash($data['password'], PASSWORD_DEFAULT);
 
-    // ✅ FIX: SQL has 13 columns — bind_param now correctly maps 13 variables
+    // Handle optional profile picture upload
+    $profile_picture = null;
+    if ($file && $file['error'] === UPLOAD_ERR_OK) {
+        $allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        $finfo         = finfo_open(FILEINFO_MIME_TYPE);
+        $mime          = finfo_file($finfo, $file['tmp_name']);
+        finfo_close($finfo);
+
+        if (!in_array($mime, $allowed_types)) {
+            return ['success' => false, 'error' => 'Profile picture must be JPG, PNG, GIF, or WEBP.'];
+        }
+        if ($file['size'] > 2 * 1024 * 1024) {
+            return ['success' => false, 'error' => 'Profile picture must be smaller than 2MB.'];
+        }
+
+        $upload_dir = __DIR__ . '/../../uploads/profile_pictures/';
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0755, true);
+        }
+
+        $ext             = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $profile_picture = 'user_' . $uuid . '_' . time() . '.' . strtolower($ext);
+        $dest            = $upload_dir . $profile_picture;
+
+        if (!move_uploaded_file($file['tmp_name'], $dest)) {
+            return ['success' => false, 'error' => 'Failed to upload profile picture.'];
+        }
+    }
+
+    // Insert — 14 columns including profile_picture
     $stmt = $conn->prepare("
         INSERT INTO user
-        (uuid, meter_number, firstName, middleName, lastname, emailAddress,
-         contactNumber, dateOfBirth, username, password, street, barangay, city)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (uuid, meter_number, profile_picture, firstName, middleName, lastname,
+         emailAddress, contactNumber, dateOfBirth, username, password,
+         street, barangay, city)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
     $stmt->bind_param(
-        "sssssssssssss",
+        "ssssssssssssss",
         $uuid,
         $data['meter_number'],
+        $profile_picture,
         $data['firstName'],
         $data['middleName'],
         $data['lastname'],

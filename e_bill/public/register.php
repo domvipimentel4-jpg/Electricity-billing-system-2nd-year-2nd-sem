@@ -51,7 +51,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             'city'         => trim($_POST['city']),
         ];
 
-        $result = registerUser($data);
+        // Pass profile picture file if uploaded
+        $file   = isset($_FILES['profile_picture']) ? $_FILES['profile_picture'] : null;
+        $result = registerUser($data, $file);
+
         if ($result['success']) {
             $success = "Registration successful! You can now login.";
         } else {
@@ -129,6 +132,54 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         border: 1.5px solid #e2e8f0;
         color: #64748b;
     }
+
+    /* Profile picture preview */
+    .avatar-upload-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+    .avatar-preview {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #dbeafe;
+        background: #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+    .avatar-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+    .avatar-placeholder {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: #dbeafe;
+        border: 3px dashed #93c5fd;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.7rem;
+        color: #3b82f6;
+        font-weight: 600;
+        text-align: center;
+        gap: 2px;
+    }
+    .avatar-placeholder:hover {
+        background: #bfdbfe;
+        border-color: #3b82f6;
+    }
   </style>
 </head>
 <body>
@@ -140,8 +191,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="card-body">
 
           <div class="text-center mb-4">
-            <i class="bi bi-lightning-charge-fill text-warning"
-               style="font-size: 2.5rem;"></i>
+            <i class="bi bi-lightning-charge-fill text-warning" style="font-size: 2.5rem;"></i>
             <h4 class="fw-bold text-dark mb-1 mt-2">Create an Account</h4>
             <p class="text-muted small">Register to view and pay your electricity bills</p>
           </div>
@@ -163,7 +213,43 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
           <?php endif; ?>
 
-          <form method="POST">
+          <!-- enctype required for file uploads -->
+          <form method="POST" enctype="multipart/form-data">
+
+            <!-- Profile Picture -->
+            <div class="section-title">
+              <i class="bi bi-camera me-1"></i> Profile Picture
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <div class="avatar-upload-wrapper">
+                  <!-- Preview circle -->
+                  <div id="avatarPreviewWrap">
+                    <div class="avatar-placeholder" id="avatarPlaceholder" onclick="document.getElementById('profile_picture').click()">
+                      <i class="bi bi-camera" style="font-size:1.5rem;"></i>
+                      <span>Click to upload</span>
+                    </div>
+                    <div class="avatar-preview d-none" id="avatarPreview">
+                      <img src="" alt="Preview" id="previewImg">
+                    </div>
+                  </div>
+                  <input type="file" name="profile_picture" id="profile_picture"
+                         accept="image/jpeg,image/png,image/gif,image/webp"
+                         class="d-none">
+                  <div class="text-center">
+                    <small class="text-muted">Optional · JPG, PNG, GIF, WEBP · Max 2MB</small><br>
+                    <button type="button" class="btn btn-outline-primary btn-sm mt-1"
+                            onclick="document.getElementById('profile_picture').click()">
+                      <i class="bi bi-upload me-1"></i>Choose Photo
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm mt-1 d-none"
+                            id="removePhoto">
+                      <i class="bi bi-x me-1"></i>Remove
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <!-- Personal Information -->
             <div class="section-title">
@@ -175,8 +261,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   First Name <span class="text-danger">*</span>
                 </label>
                 <input type="text" name="firstName" class="form-control"
-                       value="<?php echo htmlspecialchars($_POST['firstName'] ?? ''); ?>"
-                       required>
+                       value="<?php echo htmlspecialchars($_POST['firstName'] ?? ''); ?>" required>
               </div>
               <div class="col-md-4">
                 <label class="form-label small fw-semibold">Middle Name</label>
@@ -188,21 +273,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   Last Name <span class="text-danger">*</span>
                 </label>
                 <input type="text" name="lastname" class="form-control"
-                       value="<?php echo htmlspecialchars($_POST['lastname'] ?? ''); ?>"
-                       required>
+                       value="<?php echo htmlspecialchars($_POST['lastname'] ?? ''); ?>" required>
               </div>
               <div class="col-md-6">
                 <label class="form-label small fw-semibold">
                   Email Address <span class="text-danger">*</span>
                 </label>
                 <div class="input-group">
-                  <span class="input-group-text">
-                    <i class="bi bi-envelope text-muted"></i>
-                  </span>
+                  <span class="input-group-text"><i class="bi bi-envelope text-muted"></i></span>
                   <input type="email" name="email" class="form-control"
                          placeholder="e.g. juan@gmail.com"
-                         value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>"
-                         required>
+                         value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" required>
                 </div>
               </div>
               <div class="col-md-6">
@@ -210,13 +291,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   Contact Number <span class="text-danger">*</span>
                 </label>
                 <div class="input-group">
-                  <span class="input-group-text">
-                    <i class="bi bi-telephone text-muted"></i>
-                  </span>
+                  <span class="input-group-text"><i class="bi bi-telephone text-muted"></i></span>
                   <input type="tel" name="contact" class="form-control"
-                         placeholder="e.g. +639171234567"
-                         value="<?php echo htmlspecialchars($_POST['contact'] ?? ''); ?>"
-                         required>
+                         placeholder="e.g. 09171234567"
+                         value="<?php echo htmlspecialchars($_POST['contact'] ?? ''); ?>" required>
                 </div>
               </div>
               <div class="col-md-6">
@@ -224,13 +302,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   Date of Birth <span class="text-danger">*</span>
                 </label>
                 <div class="input-group">
-                  <span class="input-group-text">
-                    <i class="bi bi-calendar text-muted"></i>
-                  </span>
+                  <span class="input-group-text"><i class="bi bi-calendar text-muted"></i></span>
                   <input type="date" name="dateOfBirth" class="form-control"
                          value="<?php echo htmlspecialchars($_POST['dateOfBirth'] ?? ''); ?>"
-                         max="<?php echo date('Y-m-d', strtotime('-18 years')); ?>"
-                         required>
+                         max="<?php echo date('Y-m-d', strtotime('-18 years')); ?>" required>
                 </div>
                 <div class="form-text">Must be 18 years or older</div>
               </div>
@@ -239,13 +314,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   Meter Number <span class="text-danger">*</span>
                 </label>
                 <div class="input-group">
-                  <span class="input-group-text">
-                    <i class="bi bi-lightning text-muted"></i>
-                  </span>
+                  <span class="input-group-text"><i class="bi bi-lightning text-muted"></i></span>
                   <input type="text" name="meter_number" class="form-control"
                          placeholder="e.g. MTR-001"
-                         value="<?php echo htmlspecialchars($_POST['meter_number'] ?? ''); ?>"
-                         required>
+                         value="<?php echo htmlspecialchars($_POST['meter_number'] ?? ''); ?>" required>
                 </div>
               </div>
             </div>
@@ -260,24 +332,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   Street <span class="text-danger">*</span>
                 </label>
                 <input type="text" name="street" class="form-control"
-                       value="<?php echo htmlspecialchars($_POST['street'] ?? ''); ?>"
-                       required>
+                       value="<?php echo htmlspecialchars($_POST['street'] ?? ''); ?>" required>
               </div>
               <div class="col-md-4">
                 <label class="form-label small fw-semibold">
                   Barangay <span class="text-danger">*</span>
                 </label>
                 <input type="text" name="barangay" class="form-control"
-                       value="<?php echo htmlspecialchars($_POST['barangay'] ?? ''); ?>"
-                       required>
+                       value="<?php echo htmlspecialchars($_POST['barangay'] ?? ''); ?>" required>
               </div>
               <div class="col-md-4">
                 <label class="form-label small fw-semibold">
                   City <span class="text-danger">*</span>
                 </label>
                 <input type="text" name="city" class="form-control"
-                       value="<?php echo htmlspecialchars($_POST['city'] ?? ''); ?>"
-                       required>
+                       value="<?php echo htmlspecialchars($_POST['city'] ?? ''); ?>" required>
               </div>
             </div>
 
@@ -291,12 +360,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   Username <span class="text-danger">*</span>
                 </label>
                 <div class="input-group">
-                  <span class="input-group-text">
-                    <i class="bi bi-person text-muted"></i>
-                  </span>
+                  <span class="input-group-text"><i class="bi bi-person text-muted"></i></span>
                   <input type="text" name="username" class="form-control"
-                         value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>"
-                         required>
+                         value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>" required>
                 </div>
               </div>
               <div class="col-md-4">
@@ -304,14 +370,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   Password <span class="text-danger">*</span>
                 </label>
                 <div class="input-group">
-                  <span class="input-group-text">
-                    <i class="bi bi-lock text-muted"></i>
-                  </span>
+                  <span class="input-group-text"><i class="bi bi-lock text-muted"></i></span>
                   <input type="password" name="password" id="password"
                          class="form-control border-end-0"
                          placeholder="Min. 6 characters" required>
-                  <button type="button" class="toggle-pwd input-group-text"
-                          data-target="password" style="cursor:pointer;">
+                  <button type="button" class="toggle-pwd input-group-text" data-target="password" style="cursor:pointer;">
                     <i class="bi bi-eye-slash"></i>
                   </button>
                 </div>
@@ -321,13 +384,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   Confirm Password <span class="text-danger">*</span>
                 </label>
                 <div class="input-group">
-                  <span class="input-group-text">
-                    <i class="bi bi-lock text-muted"></i>
-                  </span>
+                  <span class="input-group-text"><i class="bi bi-lock text-muted"></i></span>
                   <input type="password" name="confirm_password" id="confirm_password"
                          class="form-control border-end-0" required>
-                  <button type="button" class="toggle-pwd input-group-text"
-                          data-target="confirm_password" style="cursor:pointer;">
+                  <button type="button" class="toggle-pwd input-group-text" data-target="confirm_password" style="cursor:pointer;">
                     <i class="bi bi-eye-slash"></i>
                   </button>
                 </div>
@@ -354,11 +414,38 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// Toggle password visibility for both password fields
-document.querySelectorAll('.toggle-pwd').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-        const targetId = this.getAttribute('data-target');
-        const input    = document.getElementById(targetId);
+// Profile picture live preview
+const fileInput      = document.getElementById('profile_picture');
+const placeholder    = document.getElementById('avatarPlaceholder');
+const previewWrap    = document.getElementById('avatarPreview');
+const previewImg     = document.getElementById('previewImg');
+const removeBtn      = document.getElementById('removePhoto');
+
+fileInput.addEventListener('change', function () {
+    if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            previewImg.src = e.target.result;
+            placeholder.classList.add('d-none');
+            previewWrap.classList.remove('d-none');
+            removeBtn.classList.remove('d-none');
+        };
+        reader.readAsDataURL(this.files[0]);
+    }
+});
+
+removeBtn.addEventListener('click', function () {
+    fileInput.value   = '';
+    previewImg.src    = '';
+    previewWrap.classList.add('d-none');
+    placeholder.classList.remove('d-none');
+    removeBtn.classList.add('d-none');
+});
+
+// Toggle password visibility
+document.querySelectorAll('.toggle-pwd').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        const input    = document.getElementById(this.getAttribute('data-target'));
         const icon     = this.querySelector('i');
         const isHidden = input.type === 'password';
         input.type     = isHidden ? 'text' : 'password';

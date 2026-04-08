@@ -40,9 +40,6 @@ function updateUserStatus($id, $status) {
 // Update user profile
 function updateUserProfile($id, $data) {
     global $conn;
-
-    // ✅ FIX: Use correct DB column names (contactNumber, dateOfBirth)
-    //         and correct $data keys that match what profile.php sends
     $stmt = $conn->prepare("
         UPDATE user SET
         firstName = ?, middleName = ?, lastname = ?,
@@ -56,8 +53,8 @@ function updateUserProfile($id, $data) {
         $data['middleName'],
         $data['lastname'],
         $data['email'],
-        $data['contact'],       // form sends name="contact"
-        $data['dateOfBirth'],   // form sends name="dateOfBirth"
+        $data['contact'],
+        $data['dateOfBirth'],
         $data['street'],
         $data['barangay'],
         $data['city'],
@@ -70,9 +67,86 @@ function updateUserProfile($id, $data) {
     }
 }
 
-// Delete user
+// -----------------------------------------------
+// Upload / Update Profile Picture
+// -----------------------------------------------
+function updateProfilePicture($user_id, $file) {
+    global $conn;
+
+    // Validate file was actually uploaded
+    if (!isset($file) || $file['error'] !== UPLOAD_ERR_OK) {
+        return ['success' => false, 'error' => 'No file uploaded or upload error.'];
+    }
+
+    // Allowed MIME types
+    $allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    $finfo         = finfo_open(FILEINFO_MIME_TYPE);
+    $mime          = finfo_file($finfo, $file['tmp_name']);
+    finfo_close($finfo);
+
+    if (!in_array($mime, $allowed_types)) {
+        return ['success' => false, 'error' => 'Only JPG, PNG, GIF, or WEBP images are allowed.'];
+    }
+
+    // Max size: 2MB
+    if ($file['size'] > 2 * 1024 * 1024) {
+        return ['success' => false, 'error' => 'Image must be smaller than 2MB.'];
+    }
+
+    // Create upload directory if it doesn't exist
+    $upload_dir = __DIR__ . '/../../uploads/profile_pictures/';
+    if (!is_dir($upload_dir)) {
+        mkdir($upload_dir, 0755, true);
+    }
+
+    // Delete old profile picture if it exists
+    $old = getUserById($user_id);
+    if (!empty($old['profile_picture'])) {
+        $old_path = $upload_dir . $old['profile_picture'];
+        if (file_exists($old_path)) {
+            unlink($old_path);
+        }
+    }
+
+    // Generate unique filename
+    $ext      = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $filename = 'user_' . $user_id . '_' . time() . '.' . strtolower($ext);
+    $dest     = $upload_dir . $filename;
+
+    if (!move_uploaded_file($file['tmp_name'], $dest)) {
+        return ['success' => false, 'error' => 'Failed to save image. Please try again.'];
+    }
+
+    // Save filename to DB
+    $stmt = $conn->prepare("UPDATE user SET profile_picture = ? WHERE id = ?");
+    $stmt->bind_param("si", $filename, $user_id);
+    if ($stmt->execute()) {
+        return ['success' => true, 'filename' => $filename];
+    } else {
+        return ['success' => false, 'error' => 'Failed to update profile picture in database.'];
+    }
+}
+
+// -----------------------------------------------
+// Get profile picture URL (with generated fallback)
+// -----------------------------------------------
+function getProfilePictureUrl($user) {
+    if (!empty($user['profile_picture'])) {
+        return BASE_URL . '../uploads/profile_pictures/' . htmlspecialchars($user['profile_picture']);
+    }
+    // Fallback: auto-generated letter avatar
+    $name = urlencode(($user['firstName'] ?? 'U') . ' ' . ($user['lastname'] ?? ''));
+    return 'https://ui-avatars.com/api/?name=' . $name . '&background=1a6fa3&color=fff&size=128&bold=true';
+}
+
+// Delete user (also cleans up profile picture)
 function deleteUser($id) {
     global $conn;
+    $user = getUserById($id);
+    if (!empty($user['profile_picture'])) {
+        $path = __DIR__ . '/../../uploads/profile_pictures/' . $user['profile_picture'];
+        if (file_exists($path)) unlink($path);
+    }
     $stmt = $conn->prepare("DELETE FROM user WHERE id = ?");
     $stmt->bind_param("i", $id);
     return $stmt->execute();

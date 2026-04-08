@@ -13,32 +13,32 @@ $current = basename($_SERVER['PHP_SELF']);
   <div class="mt-3 flex-grow-1">
     <ul class="nav flex-column">
       <li class="nav-item">
-        <a href="dashboard.php" class="nav-link <?php echo $current == 'dashboard.php' ? 'active' : ''; ?>">
+        <a href="dashboard" class="nav-link <?php echo $current == 'dashboard' ? 'active' : ''; ?>">
           <i class="bi bi-speedometer2"></i> Dashboard
         </a>
       </li>
       <li class="nav-item">
-        <a href="manage_users.php" class="nav-link <?php echo $current == 'manage_users.php' ? 'active' : ''; ?>">
+        <a href="manage_users" class="nav-link <?php echo $current == 'manage_users' ? 'active' : ''; ?>">
           <i class="bi bi-people"></i> Manage Users
         </a>
       </li>
       <li class="nav-item">
-        <a href="add_bill.php" class="nav-link <?php echo $current == 'add_bill.php' ? 'active' : ''; ?>">
+        <a href="add_bill" class="nav-link <?php echo $current == 'add_bill' ? 'active' : ''; ?>">
           <i class="bi bi-plus-circle"></i> Add Bill
         </a>
       </li>
       <li class="nav-item">
-        <a href="view_bills.php" class="nav-link <?php echo $current == 'view_bills.php' ? 'active' : ''; ?>">
+        <a href="view_bills" class="nav-link <?php echo $current == 'view_bills.' ? 'active' : ''; ?>">
           <i class="bi bi-receipt"></i> View Bills
         </a>
       </li>
       <li class="nav-item">
-        <a href="reports.php" class="nav-link <?php echo $current == 'reports.php' ? 'active' : ''; ?>">
+        <a href="reports" class="nav-link <?php echo $current == 'reports' ? 'active' : ''; ?>">
           <i class="bi bi-bar-chart"></i> Reports
         </a>
       </li>
       <li class="nav-item">
-        <a href="settings.php" class="nav-link <?php echo $current == 'settings.php' ? 'active' : ''; ?>">
+        <a href="settings" class="nav-link <?php echo $current == 'settings' ? 'active' : ''; ?>">
           <i class="bi bi-gear"></i> Settings
         </a>
       </li>
