@@ -1,4 +1,9 @@
 <?php
+// ================================================
+// Configuration
+// app/config/config.php
+// ================================================
+
 define('DB_HOST', '127.0.0.1');
 define('DB_USER', 'root');
 define('DB_PASS', '');
@@ -11,8 +16,17 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Updated base URL to match your actual folder path
 define('BASE_URL',  'http://localhost/pit/e_bill/public/');
-define('ADMIN_URL', 'http://localhost/pit/e_bill/admin/');
+define('ADMIN_URL', 'http://localhost/pit/e_bill/public/admin/');
 define('USER_URL',  'http://localhost/pit/e_bill/public/user/');
+
+// -----------------------------------------------
+// Upload paths — points to the original app/uploads/
+// folder from your project structure
+// -----------------------------------------------
+// Filesystem path for saving files (used by PHP)
+define('UPLOADS_PATH', __DIR__ . '/../uploads/');
+
+// Web-accessible URL for displaying files in browser
+define('UPLOADS_URL',  'http://localhost/pit/e_bill/app/uploads/');
 ?>

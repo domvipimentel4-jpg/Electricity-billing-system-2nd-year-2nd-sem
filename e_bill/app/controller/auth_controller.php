@@ -64,7 +64,7 @@ function loginUser($username, $password) {
 function registerUser($data, $file = null) {
     global $conn;
 
-    // Check duplicate username
+    // Duplicate checks
     $check = $conn->prepare("SELECT id FROM user WHERE username = ?");
     $check->bind_param("s", $data['username']);
     $check->execute();
@@ -73,7 +73,6 @@ function registerUser($data, $file = null) {
         return ['success' => false, 'error' => 'Username already taken. Please choose another.'];
     }
 
-    // Check duplicate email
     $check2 = $conn->prepare("SELECT id FROM user WHERE emailAddress = ?");
     $check2->bind_param("s", $data['email']);
     $check2->execute();
@@ -82,7 +81,6 @@ function registerUser($data, $file = null) {
         return ['success' => false, 'error' => 'Email address already registered.'];
     }
 
-    // Check duplicate meter number
     $check3 = $conn->prepare("SELECT id FROM user WHERE meter_number = ?");
     $check3->bind_param("s", $data['meter_number']);
     $check3->execute();
@@ -94,7 +92,7 @@ function registerUser($data, $file = null) {
     $uuid     = generateUUID();
     $password = password_hash($data['password'], PASSWORD_DEFAULT);
 
-    // Handle optional profile picture upload
+    // Handle optional profile picture — saves to app/uploads/profile_pictures/
     $profile_picture = null;
     if ($file && $file['error'] === UPLOAD_ERR_OK) {
         $allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
@@ -109,7 +107,8 @@ function registerUser($data, $file = null) {
             return ['success' => false, 'error' => 'Profile picture must be smaller than 2MB.'];
         }
 
-        $upload_dir = __DIR__ . '/../../uploads/profile_pictures/';
+        // Use UPLOADS_PATH from config.php → app/uploads/profile_pictures/
+        $upload_dir = UPLOADS_PATH . 'profile_pictures/';
         if (!is_dir($upload_dir)) {
             mkdir($upload_dir, 0755, true);
         }
@@ -123,7 +122,6 @@ function registerUser($data, $file = null) {
         }
     }
 
-    // Insert — 14 columns including profile_picture
     $stmt = $conn->prepare("
         INSERT INTO user
         (uuid, meter_number, profile_picture, firstName, middleName, lastname,

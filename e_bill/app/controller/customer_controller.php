@@ -69,16 +69,16 @@ function updateUserProfile($id, $data) {
 
 // -----------------------------------------------
 // Upload / Update Profile Picture
+// Uses UPLOADS_PATH (filesystem) from config.php
 // -----------------------------------------------
 function updateProfilePicture($user_id, $file) {
     global $conn;
 
-    // Validate file was actually uploaded
     if (!isset($file) || $file['error'] !== UPLOAD_ERR_OK) {
         return ['success' => false, 'error' => 'No file uploaded or upload error.'];
     }
 
-    // Allowed MIME types
+    // Validate MIME type
     $allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     $finfo         = finfo_open(FILEINFO_MIME_TYPE);
     $mime          = finfo_file($finfo, $file['tmp_name']);
@@ -88,27 +88,25 @@ function updateProfilePicture($user_id, $file) {
         return ['success' => false, 'error' => 'Only JPG, PNG, GIF, or WEBP images are allowed.'];
     }
 
-    // Max size: 2MB
+    // Max 2MB
     if ($file['size'] > 2 * 1024 * 1024) {
         return ['success' => false, 'error' => 'Image must be smaller than 2MB.'];
     }
 
-    // Create upload directory if it doesn't exist
-    $upload_dir = __DIR__ . '/../../uploads/profile_pictures/';
+    // Save inside app/uploads/profile_pictures/
+    $upload_dir = UPLOADS_PATH . 'profile_pictures/';
     if (!is_dir($upload_dir)) {
         mkdir($upload_dir, 0755, true);
     }
 
-    // Delete old profile picture if it exists
+    // Delete old picture if exists
     $old = getUserById($user_id);
     if (!empty($old['profile_picture'])) {
         $old_path = $upload_dir . $old['profile_picture'];
-        if (file_exists($old_path)) {
-            unlink($old_path);
-        }
+        if (file_exists($old_path)) unlink($old_path);
     }
 
-    // Generate unique filename
+    // Save new file
     $ext      = pathinfo($file['name'], PATHINFO_EXTENSION);
     $filename = 'user_' . $user_id . '_' . time() . '.' . strtolower($ext);
     $dest     = $upload_dir . $filename;
@@ -117,7 +115,7 @@ function updateProfilePicture($user_id, $file) {
         return ['success' => false, 'error' => 'Failed to save image. Please try again.'];
     }
 
-    // Save filename to DB
+    // Update DB
     $stmt = $conn->prepare("UPDATE user SET profile_picture = ? WHERE id = ?");
     $stmt->bind_param("si", $filename, $user_id);
     if ($stmt->execute()) {
@@ -128,11 +126,12 @@ function updateProfilePicture($user_id, $file) {
 }
 
 // -----------------------------------------------
-// Get profile picture URL (with generated fallback)
+// Get profile picture URL
+// Uses UPLOADS_URL (web URL) from config.php
 // -----------------------------------------------
 function getProfilePictureUrl($user) {
     if (!empty($user['profile_picture'])) {
-        return BASE_URL . '../uploads/profile_pictures/' . htmlspecialchars($user['profile_picture']);
+        return UPLOADS_URL . 'profile_pictures/' . htmlspecialchars($user['profile_picture']);
     }
     // Fallback: auto-generated letter avatar
     $name = urlencode(($user['firstName'] ?? 'U') . ' ' . ($user['lastname'] ?? ''));
@@ -144,7 +143,7 @@ function deleteUser($id) {
     global $conn;
     $user = getUserById($id);
     if (!empty($user['profile_picture'])) {
-        $path = __DIR__ . '/../../uploads/profile_pictures/' . $user['profile_picture'];
+        $path = UPLOADS_PATH . 'profile_pictures/' . $user['profile_picture'];
         if (file_exists($path)) unlink($path);
     }
     $stmt = $conn->prepare("DELETE FROM user WHERE id = ?");
