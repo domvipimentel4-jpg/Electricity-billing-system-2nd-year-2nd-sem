@@ -201,7 +201,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
               <i class="bi bi-check-circle-fill fs-5"></i>
               <div>
                 <?php echo $success; ?>
-                <a href="index.php" class="ms-2 btn btn-success btn-sm">Login Now</a>
+                <a href="index" class="ms-2 btn btn-success btn-sm">Login Now</a>
               </div>
             </div>
           <?php endif; ?>
@@ -402,7 +402,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             <p class="text-center text-muted small mt-3 mb-0">
               Already have an account?
-              <a href="index.php" class="text-primary fw-semibold">Sign in here</a>
+              <a href="index" class="text-primary fw-semibold">Sign in here</a>
             </p>
 
           </form>

@@ -35,7 +35,7 @@ $current = basename($_SERVER['PHP_SELF']);
     </ul>
   </div>
   <div class="p-3" style="border-top: 1px solid #1a6fa3;">
-    <a href="<?php echo BASE_URL; ?>index.php?logout=1" class="nav-link text-danger">
+    <a href="<?php echo BASE_URL; ?>index?logout=1" class="nav-link text-danger">
       <i class="bi bi-box-arrow-left"></i> Logout
     </a>
   </div>

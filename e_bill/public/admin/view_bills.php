@@ -44,7 +44,7 @@ require_once __DIR__ . '/includes/header.php';
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
           <span><i class="bi bi-receipt me-2"></i>All Bills</span>
-          <a href="add_bill.php" class="btn btn-sm btn-primary">
+          <a href="add_bill" class="btn btn-sm btn-primary">
             <i class="bi bi-plus me-1"></i>Add Bill
           </a>
         </div>

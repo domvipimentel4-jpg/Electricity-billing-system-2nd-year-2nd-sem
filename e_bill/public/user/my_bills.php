@@ -82,7 +82,7 @@ require_once __DIR__ . '/includes/header.php';
                   </td>
                   <td>
                     <?php if ($row['status'] == 'unpaid'): ?>
-                      <a href="pay_bill.php?bill_id=<?php echo $row['id']; ?>"
+                      <a href="pay_bill?bill_id=<?php echo $row['id']; ?>"
                          class="btn btn-sm btn-success">
                         <i class="bi bi-credit-card me-1"></i>Pay Now
                       </a>

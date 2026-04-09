@@ -101,19 +101,19 @@ require_once __DIR__ . '/includes/header.php';
       <!-- Quick Actions -->
       <div class="row g-3 mb-4">
         <div class="col-md-4">
-          <a href="my_bills.php" class="btn btn-primary w-100 py-3">
+          <a href="my_bills" class="btn btn-primary w-100 py-3">
             <i class="bi bi-receipt d-block mb-1" style="font-size:1.5rem;"></i>
             View My Bills
           </a>
         </div>
         <div class="col-md-4">
-          <a href="pay_bill.php" class="btn btn-success w-100 py-3">
+          <a href="pay_bill" class="btn btn-success w-100 py-3">
             <i class="bi bi-credit-card d-block mb-1" style="font-size:1.5rem;"></i>
             Pay a Bill
           </a>
         </div>
         <div class="col-md-4">
-          <a href="profile.php" class="btn btn-outline-secondary w-100 py-3">
+          <a href="profile" class="btn btn-outline-secondary w-100 py-3">
             <i class="bi bi-person d-block mb-1" style="font-size:1.5rem;"></i>
             My Profile
           </a>
@@ -124,7 +124,7 @@ require_once __DIR__ . '/includes/header.php';
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
           <span><i class="bi bi-clock-history me-2"></i>Recent Bills</span>
-          <a href="my_bills.php" class="btn btn-sm btn-outline-primary">View All</a>
+          <a href="my_bills" class="btn btn-sm btn-outline-primary">View All</a>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
@@ -158,7 +158,7 @@ require_once __DIR__ . '/includes/header.php';
                   </td>
                   <td>
                     <?php if ($row['status'] == 'unpaid'): ?>
-                      <a href="pay_bill.php?bill_id=<?php echo $row['id']; ?>"
+                      <a href="pay_bill?bill_id=<?php echo $row['id']; ?>"
                          class="btn btn-sm btn-success">
                         <i class="bi bi-credit-card"></i> Pay
                       </a>

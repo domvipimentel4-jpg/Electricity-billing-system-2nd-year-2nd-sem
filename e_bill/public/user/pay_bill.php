@@ -67,8 +67,8 @@ require_once __DIR__ . '/includes/header.php';
                 <?php echo $success; ?>
               </div>
             </div>
-            <a href="my_bills.php" class="btn btn-primary me-2">View My Bills</a>
-            <a href="dashboard.php" class="btn btn-outline-secondary">Dashboard</a>
+            <a href="my_bills" class="btn btn-primary me-2">View My Bills</a>
+            <a href="dashboard" class="btn btn-outline-secondary">Dashboard</a>
           <?php else: ?>
 
             <?php if ($error): ?>
@@ -163,7 +163,7 @@ require_once __DIR__ . '/includes/header.php';
                           </td>
                           <td><?php echo $row['due_date']; ?></td>
                           <td>
-                            <a href="pay_bill.php?bill_id=<?php echo $row['id']; ?>"
+                            <a href="pay_bill?bill_id=<?php echo $row['id']; ?>"
                                class="btn btn-sm btn-success">
                               <i class="bi bi-credit-card me-1"></i>Pay Now
                             </a>

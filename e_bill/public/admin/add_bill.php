@@ -63,10 +63,10 @@ require_once __DIR__ . '/includes/header.php';
                   <div class="alert alert-success">
                     <i class="bi bi-check-circle me-2"></i><?php echo $success; ?>
                   </div>
-                  <a href="add_bill.php" class="btn btn-primary me-2">
+                  <a href="add_bill" class="btn btn-primary me-2">
                     <i class="bi bi-plus me-1"></i>Add Another Bill
                   </a>
-                  <a href="view_bills.php" class="btn btn-outline-secondary">
+                  <a href="view_bills" class="btn btn-outline-secondary">
                     <i class="bi bi-receipt me-1"></i>View All Bills
                   </a>
 

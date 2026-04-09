@@ -24,7 +24,7 @@ if (!empty($_SESSION['user_profile_picture'])) {
   </div>
   <div class="d-flex align-items-center gap-3">
     <!-- Profile picture + name — clicking goes to profile page -->
-    <a href="profile.php"
+    <a href="profile"
        class="d-flex align-items-center gap-2 text-decoration-none text-muted small"
        title="My Profile">
       <img src="<?php echo $_topbar_pic; ?>"
@@ -34,7 +34,7 @@ if (!empty($_SESSION['user_profile_picture'])) {
                   flex-shrink:0;">
       <span><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?></span>
     </a>
-    <a href="<?php echo BASE_URL; ?>index.php?logout=1"
+    <a href="<?php echo BASE_URL; ?>index?logout=1"
        class="btn btn-outline-danger btn-sm">
       <i class="bi bi-box-arrow-left"></i> Logout
     </a>

@@ -82,25 +82,25 @@ require_once __DIR__ . '/includes/header.php';
             <div class="card-body">
               <div class="row g-3">
                 <div class="col-md-3 col-sm-6">
-                  <a href="manage_users.php" class="btn btn-primary w-100 py-3">
+                  <a href="manage_users" class="btn btn-primary w-100 py-3">
                     <i class="bi bi-people d-block mb-1" style="font-size:1.5rem;"></i>
                     Manage Users
                   </a>
                 </div>
                 <div class="col-md-3 col-sm-6">
-                  <a href="add_bill.php" class="btn btn-success w-100 py-3">
+                  <a href="add_bill" class="btn btn-success w-100 py-3">
                     <i class="bi bi-plus-circle d-block mb-1" style="font-size:1.5rem;"></i>
                     Add Bill
                   </a>
                 </div>
                 <div class="col-md-3 col-sm-6">
-                  <a href="view_bills.php" class="btn btn-warning w-100 py-3">
+                  <a href="view_bills" class="btn btn-warning w-100 py-3">
                     <i class="bi bi-receipt d-block mb-1" style="font-size:1.5rem;"></i>
                     View Bills
                   </a>
                 </div>
                 <div class="col-md-3 col-sm-6">
-                  <a href="reports.php" class="btn btn-info w-100 py-3 text-white">
+                  <a href="reports" class="btn btn-info w-100 py-3 text-white">
                     <i class="bi bi-bar-chart d-block mb-1" style="font-size:1.5rem;"></i>
                     Reports
                   </a>
@@ -115,7 +115,7 @@ require_once __DIR__ . '/includes/header.php';
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
           <span><i class="bi bi-clock-history me-2"></i>Recent Bills</span>
-          <a href="view_bills.php" class="btn btn-sm btn-outline-primary">View All</a>
+          <a href="view_bills" class="btn btn-sm btn-outline-primary">View All</a>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
@@ -163,7 +163,7 @@ require_once __DIR__ . '/includes/header.php';
                 <?php endwhile; else: ?>
                 <tr>
                   <td colspan="6" class="text-center text-muted py-4">
-                    No bills found. <a href="add_bill.php">Add one now</a>
+                    No bills found. <a href="add_bill">Add one now</a>
                   </td>
                 </tr>
                 <?php endif; ?>

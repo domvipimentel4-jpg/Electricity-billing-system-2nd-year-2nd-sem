@@ -177,7 +177,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             <p class="text-center text-muted small mb-0">
               Don't have an account?
-              <a href="register.php" class="text-primary fw-semibold">Register here</a>
+              <a href="register" class="text-primary fw-semibold">Register here</a>
             </p>
           </form>
 
