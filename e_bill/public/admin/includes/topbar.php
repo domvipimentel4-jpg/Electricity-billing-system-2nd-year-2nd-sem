@@ -18,9 +18,5 @@
       <i class="bi bi-person-circle me-1"></i>
       <?php echo htmlspecialchars($_SESSION['admin_name'] ?? 'Admin'); ?>
     </span>
-    <a href="<?php echo BASE_URL; ?>index.php?logout=1"
-       class="btn btn-outline-danger btn-sm">
-      <i class="bi bi-box-arrow-left"></i> Logout
-    </a>
   </div>
 </div>

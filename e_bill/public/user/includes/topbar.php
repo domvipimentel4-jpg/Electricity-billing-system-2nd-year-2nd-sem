@@ -34,9 +34,5 @@ if (!empty($_SESSION['user_profile_picture'])) {
                   flex-shrink:0;">
       <span><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?></span>
     </a>
-    <a href="<?php echo BASE_URL; ?>index?logout=1"
-       class="btn btn-outline-danger btn-sm">
-      <i class="bi bi-box-arrow-left"></i> Logout
-    </a>
   </div>
 </div>

@@ -119,7 +119,7 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
 
                 <button type="submit" class="btn btn-primary w-100">
-                  <i class="bi bi-save me-2"></i>Save Settings
+                  Submit
                 </button>
               </form>
             </div>

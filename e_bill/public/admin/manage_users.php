@@ -71,7 +71,6 @@ require_once __DIR__ . '/includes/header.php';
                   <th>#</th>
                   <th>Name</th>
                   <th>Username</th>
-                  <th>Email</th>
                   <th>Contact</th>
                   <th>Date of Birth</th>
                   <th>Meter No.</th>
@@ -92,7 +91,6 @@ require_once __DIR__ . '/includes/header.php';
                     <?php echo htmlspecialchars($row['firstName'] . ' ' . $row['lastname']); ?>
                   </td>
                   <td><?php echo htmlspecialchars($row['username']); ?></td>
-                  <td><?php echo htmlspecialchars($row['emailAddress']); ?></td>
                   <td><?php echo htmlspecialchars($row['contactNumber'] ?? 'N/A'); ?></td>
                   <td><?php echo $row['dateOfBirth'] ? date('M d, Y', strtotime($row['dateOfBirth'])) : 'N/A'; ?></td>
                   <td><?php echo htmlspecialchars($row['meter_number'] ?? 'N/A'); ?></td>
@@ -133,7 +131,7 @@ require_once __DIR__ . '/includes/header.php';
                 </tr>
                 <?php endwhile; else: ?>
                 <tr>
-                  <td colspan="10" class="text-center text-muted py-4">
+                  <td colspan="9" class="text-center text-muted py-4">
                     No users registered yet.
                   </td>
                 </tr>

@@ -14,6 +14,7 @@ $user_id    = $_SESSION['user_id'];
 $success    = "";
 $error      = "";
 $bill       = null;
+$receipt_uuid = null;
 
 // Load specific bill if ID provided
 if (isset($_GET['bill_id'])) {
@@ -32,8 +33,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $result = payBill($bill_id, $user_id, $amount, $method);
     if ($result['success']) {
-        $success = "Payment successful! Your bill has been marked as paid.";
-        $bill    = null;
+        $success      = "Payment successful! Your bill has been marked as paid.";
+        $receipt_uuid = $result['payment_uuid'] ?? null;
+        $bill         = null;
     } else {
         $error = $result['error'];
     }
@@ -67,7 +69,12 @@ require_once __DIR__ . '/includes/header.php';
                 <?php echo $success; ?>
               </div>
             </div>
-            <a href="my_bills" class="btn btn-primary me-2">View My Bills</a>
+            <?php if ($receipt_uuid): ?>
+              <a href="download_receipt.php?uuid=<?php echo urlencode($receipt_uuid); ?>" class="btn btn-primary me-2">
+                <i class="bi bi-download me-1"></i>Download Receipt
+              </a>
+            <?php endif; ?>
+            <a href="my_bills" class="btn btn-outline-secondary me-2">View My Bills</a>
             <a href="dashboard" class="btn btn-outline-secondary">Dashboard</a>
           <?php else: ?>
 
@@ -127,7 +134,6 @@ require_once __DIR__ . '/includes/header.php';
                       <strong>₱<?php echo number_format($bill['amount_due'], 2); ?></strong>
                     </div>
                     <button type="submit" class="btn btn-success w-100">
-                      <i class="bi bi-credit-card me-2"></i>
                       Confirm Payment — ₱<?php echo number_format($bill['amount_due'], 2); ?>
                     </button>
                   </form>

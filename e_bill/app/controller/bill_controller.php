@@ -114,17 +114,28 @@ function payBill($bill_id, $user_id, $amount, $method) {
         VALUES (?, ?, ?, ?, ?)
     ");
     $stmt->bind_param("siids", $uuid, $bill_id, $user_id, $amount, $method);
-    $stmt->execute();
+    if (!$stmt->execute()) {
+        return ['success' => false, 'error' => 'Payment could not be recorded. Please try again.'];
+    }
 
     // Update bill status
     $stmt2 = $conn->prepare("UPDATE bill SET status = 'paid' WHERE id = ?");
     $stmt2->bind_param("i", $bill_id);
 
     if ($stmt2->execute()) {
-        return ['success' => true];
+        return ['success' => true, 'payment_uuid' => $uuid];
     } else {
         return ['success' => false, 'error' => 'Payment failed. Please try again.'];
     }
+}
+
+// Get payment by UUID
+function getPaymentByUuid($uuid) {
+    global $conn;
+    $stmt = $conn->prepare("\n        SELECT p.*, u.firstName, u.lastname, u.meter_number, u.emailAddress\n        FROM payment p\n        JOIN user u ON p.user_id = u.id\n        WHERE p.uuid = ?\n    ");
+    $stmt->bind_param("s", $uuid);
+    $stmt->execute();
+    return $stmt->get_result()->fetch_assoc();
 }
 
 // Toggle bill status (admin)

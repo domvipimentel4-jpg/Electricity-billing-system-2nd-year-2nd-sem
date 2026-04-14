@@ -133,7 +133,7 @@ require_once __DIR__ . '/includes/header.php';
                   </div>
 
                   <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-plus-circle me-2"></i>Save Bill
+                    Submit
                   </button>
                 </form>
 

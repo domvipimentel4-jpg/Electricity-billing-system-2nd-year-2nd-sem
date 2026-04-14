@@ -28,5 +28,5 @@ define('USER_URL',  'http://localhost/pit/e_bill/public/user/');
 define('UPLOADS_PATH', __DIR__ . '/../uploads/');
 
 // Web-accessible URL for displaying files in browser
-define('UPLOADS_URL',  'http://localhost/pit/e_bill/app/uploads/');
+define('UPLOADS_URL', 'http://localhost/pit/e_bill/app/uploads/');
 ?>

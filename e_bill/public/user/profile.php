@@ -135,57 +135,40 @@ require_once __DIR__ . '/includes/header.php';
               <i class="bi bi-camera me-2"></i>Profile Picture
             </div>
             <div class="card-body p-4">
-              <form method="POST" enctype="multipart/form-data">
+              <form id="profilePictureForm" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="action" value="update_picture">
                 <div class="d-flex align-items-center gap-4 flex-wrap">
 
                   <!-- Current / Preview image -->
-                  <div style="position:relative;">
+                  <div id="photoUploadWrapper" style="position:relative;width:110px;height:110px;">
                     <img src="<?php echo $pic_url; ?>"
                          id="profilePreviewImg"
                          alt="Profile Picture"
                          style="width:110px;height:110px;border-radius:50%;
                                 object-fit:cover;border:3px solid #dbeafe;">
-                    <!-- Camera badge overlay -->
                     <label for="profile_picture_input"
-                           style="position:absolute;bottom:0;right:0;
-                                  background:#1a6fa3;border-radius:50%;
-                                  width:32px;height:32px;display:flex;
-                                  align-items:center;justify-content:center;
-                                  cursor:pointer;border:2px solid #fff;"
-                           title="Change photo">
-                      <i class="bi bi-camera-fill text-white" style="font-size:0.85rem;"></i>
+                           id="profile_picture_label"
+                           style="position:absolute;top:0;left:0;width:100%;height:100%;
+                                  border-radius:50%;background:rgba(0,0,0,0.45);
+                                  color:#fff;display:flex;align-items:center;
+                                  justify-content:center;cursor:pointer;
+                                  opacity:0;transition:opacity .2s;">
+                      <div class="text-center">
+                        <i class="bi bi-camera-fill fs-4"></i>
+                        <div class="small">Upload</div>
+                      </div>
                     </label>
                   </div>
 
-                  <!-- Upload controls -->
                   <div class="flex-grow-1">
                     <p class="fw-semibold mb-1">
                       <?php echo htmlspecialchars($user['firstName'] . ' ' . $user['lastname']); ?>
-                    </p>
-                    <p class="text-muted small mb-2">
-                      JPG, PNG, GIF or WEBP &nbsp;·&nbsp; Max 2MB
                     </p>
                     <input type="file"
                            name="profile_picture"
                            id="profile_picture_input"
                            accept="image/jpeg,image/png,image/gif,image/webp"
                            class="d-none">
-                    <div class="d-flex gap-2 align-items-center flex-wrap">
-                      <button type="button"
-                              class="btn btn-outline-primary btn-sm"
-                              onclick="document.getElementById('profile_picture_input').click()">
-                        <i class="bi bi-upload me-1"></i>Choose Photo
-                      </button>
-                      <span id="chosenFileName" class="text-muted small">No file chosen</span>
-                    </div>
-                  </div>
-
-                  <!-- Save button -->
-                  <div>
-                    <button type="submit" class="btn btn-primary">
-                      <i class="bi bi-save me-1"></i>Save Photo
-                    </button>
                   </div>
 
                 </div>
@@ -309,12 +292,6 @@ require_once __DIR__ . '/includes/header.php';
               <i class="bi bi-person-badge me-2"></i>Account Info
             </div>
             <div class="card-body">
-              <div class="text-center mb-3">
-                <img src="<?php echo $pic_url; ?>"
-                     alt="Profile"
-                     style="width:80px;height:80px;border-radius:50%;
-                            object-fit:cover;border:3px solid #dbeafe;">
-              </div>
               <div class="mb-2">
                 <small class="text-muted">Username</small>
                 <p class="fw-semibold mb-0"><?php echo htmlspecialchars($user['username']); ?></p>
@@ -390,22 +367,40 @@ require_once __DIR__ . '/includes/header.php';
   </div>
 </div>
 
-<?php require_once __DIR__ . '/includes/footer.php'; ?>
+<style>
+  #photoUploadWrapper {
+    cursor: pointer;
+  }
+  #photoUploadWrapper:hover #profile_picture_label {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.65);
+  }
+  #profile_picture_label {
+    opacity: 0;
+    pointer-events: auto;
+    transition: opacity .2s ease;
+  }
+  #profile_picture_label .small {
+    font-size: 0.85rem;
+    margin-top: 0.15rem;
+  }
+</style>
 
 <script>
-// Live preview when choosing a new photo
-const picInput     = document.getElementById('profile_picture_input');
-const previewImg   = document.getElementById('profilePreviewImg');
-const fileNameSpan = document.getElementById('chosenFileName');
+const picInput = document.getElementById('profile_picture_input');
+const previewImg = document.getElementById('profilePreviewImg');
+const profilePictureForm = document.getElementById('profilePictureForm');
 
 picInput.addEventListener('change', function () {
     if (this.files && this.files[0]) {
-        fileNameSpan.textContent = this.files[0].name;
         const reader = new FileReader();
         reader.onload = function (e) {
             previewImg.src = e.target.result;
+            profilePictureForm.submit();
         };
         reader.readAsDataURL(this.files[0]);
     }
 });
 </script>
+
+<?php require_once __DIR__ . '/includes/footer.php'; ?>
