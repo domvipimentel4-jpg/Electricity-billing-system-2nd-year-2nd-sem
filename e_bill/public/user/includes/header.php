@@ -14,14 +14,34 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
   <style>
     body { overflow-x: hidden; }
+
     .sidebar {
         min-height: 100vh;
         width: 250px;
         background: #0f4c75;
         position: fixed;
         top: 0; left: 0;
-        z-index: 100;
+        z-index: 1000;
+        transition: width 0.3s ease, transform 0.3s ease;
+        overflow: hidden;
     }
+
+    .sidebar.collapsed { width: 60px; }
+
+    .sidebar.collapsed .nav-label,
+    .sidebar.collapsed .sidebar-brand-text,
+    .sidebar.collapsed .logout-label { display: none; }
+
+    .sidebar.collapsed .nav-link {
+        justify-content: center;
+        padding: 10px 0;
+        margin: 2px 6px;
+    }
+
+    .sidebar.collapsed .nav-link i { margin-right: 0; }
+    .sidebar.collapsed .sidebar-brand { justify-content: center; padding: 20px 10px; }
+    .sidebar.collapsed .logout-link { justify-content: center; padding: 10px 0; }
+
     .sidebar .nav-link {
         color: #90cdf4;
         padding: 10px 20px;
@@ -29,25 +49,41 @@
         margin: 2px 10px;
         font-size: 0.9rem;
         transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
     }
     .sidebar .nav-link:hover,
-    .sidebar .nav-link.active {
-        background: #1a6fa3;
-        color: #ffffff;
-    }
-    .sidebar .nav-link i { width: 20px; margin-right: 8px; }
+    .sidebar .nav-link.active { background: #1a6fa3; color: #ffffff; }
+    .sidebar .nav-link i { width: 20px; margin-right: 8px; flex-shrink: 0; }
+
     .sidebar-brand {
         padding: 20px;
         border-bottom: 1px solid #1a6fa3;
         color: #ffffff;
         font-weight: 700;
         font-size: 1rem;
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
     }
+    .sidebar-brand i { flex-shrink: 0; margin-right: 8px; }
+    .sidebar.collapsed .sidebar-brand i { margin-right: 0; }
+
     .main-content {
-        margin-left: 250px;
+        margin-left: 60px; /* starts expanded since sidebar starts collapsed */
         min-height: 100vh;
         background: #f1f5f9;
+        transition: margin-left 0.3s ease;
+        animation: fadeIn 0.25s ease;
     }
+    .main-content.sidebar-open { margin-left: 250px; }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
     .topbar {
         background: #ffffff;
         border-bottom: 1px solid #e2e8f0;
@@ -59,27 +95,45 @@
         top: 0;
         z-index: 99;
     }
-    .page-content { padding: 24px; }
-    .card {
+
+    .sidebar-toggle-btn {
+        background: none;
         border: none;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        font-size: 1.3rem;
+        color: #475569;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 6px;
+        transition: background 0.2s;
+        margin-right: 12px;
     }
+    .sidebar-toggle-btn:hover { background: #f1f5f9; color: #1e293b; }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.4);
+        z-index: 999;
+    }
+    .sidebar-overlay.active { display: block; }
+
+    @media (max-width: 768px) {
+        .sidebar { width: 250px; transform: translateX(-100%); }
+        .sidebar.mobile-open { transform: translateX(0); }
+        .main-content { margin-left: 0 !important; }
+    }
+
+    .page-content { padding: 24px; }
+    .card { border: none; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
     .card-header {
-        background: #ffffff;
-        border-bottom: 1px solid #f1f5f9;
-        border-radius: 12px 12px 0 0 !important;
-        font-weight: 600;
-        padding: 16px 20px;
+        background: #ffffff; border-bottom: 1px solid #f1f5f9;
+        border-radius: 12px 12px 0 0 !important; font-weight: 600; padding: 16px 20px;
     }
     .table thead th {
-        background: #f8fafc;
-        color: #475569;
-        font-size: 0.78rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        border-bottom: 2px solid #e2e8f0;
-        font-weight: 600;
+        background: #f8fafc; color: #475569; font-size: 0.78rem;
+        text-transform: uppercase; letter-spacing: 0.5px;
+        border-bottom: 2px solid #e2e8f0; font-weight: 600;
     }
     .table tbody tr:hover { background: #f8fafc; }
     .badge { font-size: 0.75rem; padding: 5px 10px; border-radius: 20px; }
@@ -88,3 +142,4 @@
   </style>
 </head>
 <body>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
