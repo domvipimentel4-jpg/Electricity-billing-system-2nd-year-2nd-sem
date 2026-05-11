@@ -23,35 +23,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } elseif (strlen($_POST['password']) < 6) {
         $error = "Password must be at least 6 characters.";
     } elseif (
-        empty($_POST['firstName'])    ||
-        empty($_POST['lastname'])     ||
-        empty($_POST['email'])        ||
-        empty($_POST['contact'])      ||
-        empty($_POST['dateOfBirth'])  ||
-        empty($_POST['meter_number']) ||
-        empty($_POST['username'])     ||
-        empty($_POST['street'])       ||
-        empty($_POST['barangay'])     ||
+        empty($_POST['firstName'])   ||
+        empty($_POST['lastname'])    ||
+        empty($_POST['email'])       ||
+        empty($_POST['contact'])     ||
+        empty($_POST['dateOfBirth']) ||
+        empty($_POST['username'])    ||
+        empty($_POST['street'])      ||
+        empty($_POST['barangay'])    ||
         empty($_POST['city'])
     ) {
         $error = "Please fill in all required fields.";
     } else {
         $data = [
-            'firstName'    => trim($_POST['firstName']),
-            'middleName'   => trim($_POST['middleName']),
-            'lastname'     => trim($_POST['lastname']),
-            'email'        => trim($_POST['email']),
-            'contact'      => trim($_POST['contact']),
-            'dateOfBirth'  => trim($_POST['dateOfBirth']),
-            'username'     => trim($_POST['username']),
-            'password'     => $_POST['password'],
-            'meter_number' => trim($_POST['meter_number']),
-            'street'       => trim($_POST['street']),
-            'barangay'     => trim($_POST['barangay']),
-            'city'         => trim($_POST['city']),
+            'firstName'   => trim($_POST['firstName']),
+            'middleName'  => trim($_POST['middleName']),
+            'lastname'    => trim($_POST['lastname']),
+            'email'       => trim($_POST['email']),
+            'contact'     => trim($_POST['contact']),
+            'dateOfBirth' => trim($_POST['dateOfBirth']),
+            'username'    => trim($_POST['username']),
+            'password'    => $_POST['password'],
+            'street'      => trim($_POST['street']),
+            'barangay'    => trim($_POST['barangay']),
+            'city'        => trim($_POST['city']),
         ];
 
-        // Pass profile picture file if uploaded
         $file   = isset($_FILES['profile_picture']) ? $_FILES['profile_picture'] : null;
         $result = registerUser($data, $file);
 
@@ -132,8 +129,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         border: 1.5px solid #e2e8f0;
         color: #64748b;
     }
-
-    /* Profile picture preview */
     .avatar-upload-wrapper {
         display: flex;
         flex-direction: column;
@@ -213,7 +208,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
           <?php endif; ?>
 
-          <!-- enctype required for file uploads -->
           <form method="POST" enctype="multipart/form-data">
 
             <!-- Profile Picture -->
@@ -223,9 +217,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="row">
               <div class="col-12">
                 <div class="avatar-upload-wrapper">
-                  <!-- Preview circle -->
                   <div id="avatarPreviewWrap">
-                    <div class="avatar-placeholder" id="avatarPlaceholder" onclick="document.getElementById('profile_picture').click()">
+                    <div class="avatar-placeholder" id="avatarPlaceholder"
+                         onclick="document.getElementById('profile_picture').click()">
                       <i class="bi bi-camera" style="font-size:1.5rem;"></i>
                       <span>Click to upload</span>
                     </div>
@@ -309,17 +303,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
                 <div class="form-text">Must be 18 years or older</div>
               </div>
-              <div class="col-md-6">
-                <label class="form-label small fw-semibold">
-                  Meter Number <span class="text-danger">*</span>
-                </label>
-                <div class="input-group">
-                  <span class="input-group-text"><i class="bi bi-lightning text-muted"></i></span>
-                  <input type="text" name="meter_number" class="form-control"
-                         placeholder="e.g. MTR-001"
-                         value="<?php echo htmlspecialchars($_POST['meter_number'] ?? ''); ?>" required>
-                </div>
-              </div>
             </div>
 
             <!-- Address -->
@@ -374,7 +357,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   <input type="password" name="password" id="password"
                          class="form-control border-end-0"
                          placeholder="Min. 6 characters" required>
-                  <button type="button" class="toggle-pwd input-group-text" data-target="password" style="cursor:pointer;">
+                  <button type="button" class="toggle-pwd input-group-text"
+                          data-target="password" style="cursor:pointer;">
                     <i class="bi bi-eye-slash"></i>
                   </button>
                 </div>
@@ -387,7 +371,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   <span class="input-group-text"><i class="bi bi-lock text-muted"></i></span>
                   <input type="password" name="confirm_password" id="confirm_password"
                          class="form-control border-end-0" required>
-                  <button type="button" class="toggle-pwd input-group-text" data-target="confirm_password" style="cursor:pointer;">
+                  <button type="button" class="toggle-pwd input-group-text"
+                          data-target="confirm_password" style="cursor:pointer;">
                     <i class="bi bi-eye-slash"></i>
                   </button>
                 </div>
@@ -414,12 +399,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// Profile picture live preview
-const fileInput      = document.getElementById('profile_picture');
-const placeholder    = document.getElementById('avatarPlaceholder');
-const previewWrap    = document.getElementById('avatarPreview');
-const previewImg     = document.getElementById('previewImg');
-const removeBtn      = document.getElementById('removePhoto');
+const fileInput   = document.getElementById('profile_picture');
+const placeholder = document.getElementById('avatarPlaceholder');
+const previewWrap = document.getElementById('avatarPreview');
+const previewImg  = document.getElementById('previewImg');
+const removeBtn   = document.getElementById('removePhoto');
 
 fileInput.addEventListener('change', function () {
     if (this.files && this.files[0]) {
@@ -435,14 +419,13 @@ fileInput.addEventListener('change', function () {
 });
 
 removeBtn.addEventListener('click', function () {
-    fileInput.value   = '';
-    previewImg.src    = '';
+    fileInput.value = '';
+    previewImg.src  = '';
     previewWrap.classList.add('d-none');
     placeholder.classList.remove('d-none');
     removeBtn.classList.add('d-none');
 });
 
-// Toggle password visibility
 document.querySelectorAll('.toggle-pwd').forEach(function (btn) {
     btn.addEventListener('click', function () {
         const input    = document.getElementById(this.getAttribute('data-target'));

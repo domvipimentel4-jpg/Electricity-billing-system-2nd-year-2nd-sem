@@ -81,12 +81,25 @@ function registerUser($data, $file = null) {
         return ['success' => false, 'error' => 'Email address already registered.'];
     }
 
-    $check3 = $conn->prepare("SELECT id FROM user WHERE meter_number = ?");
-    $check3->bind_param("s", $data['meter_number']);
-    $check3->execute();
-    $check3->store_result();
-    if ($check3->num_rows > 0) {
-        return ['success' => false, 'error' => 'Meter number already registered.'];
+    // Auto-generate unique meter number (MTR-001, MTR-002, ...)
+    $result   = $conn->query("SELECT meter_number FROM user ORDER BY id DESC LIMIT 1");
+    $last     = $result->fetch_assoc();
+    if ($last && preg_match('/MTR-(\d+)/', $last['meter_number'], $matches)) {
+        $next_num = intval($matches[1]) + 1;
+    } else {
+        $next_num = 1;
+    }
+    $meter_number = 'MTR-' . str_pad($next_num, 3, '0', STR_PAD_LEFT);
+
+    // Safety loop — ensure meter number is truly unique
+    while (true) {
+        $mcheck = $conn->prepare("SELECT id FROM user WHERE meter_number = ?");
+        $mcheck->bind_param("s", $meter_number);
+        $mcheck->execute();
+        $mcheck->store_result();
+        if ($mcheck->num_rows === 0) break;
+        $next_num++;
+        $meter_number = 'MTR-' . str_pad($next_num, 3, '0', STR_PAD_LEFT);
     }
 
     $uuid     = generateUUID();
@@ -107,7 +120,6 @@ function registerUser($data, $file = null) {
             return ['success' => false, 'error' => 'Profile picture must be smaller than 2MB.'];
         }
 
-        // Use UPLOADS_PATH from config.php → app/uploads/profile_pictures/
         $upload_dir = UPLOADS_PATH . 'profile_pictures/';
         if (!is_dir($upload_dir)) {
             mkdir($upload_dir, 0755, true);
@@ -132,7 +144,7 @@ function registerUser($data, $file = null) {
     $stmt->bind_param(
         "ssssssssssssss",
         $uuid,
-        $data['meter_number'],
+        $meter_number,
         $profile_picture,
         $data['firstName'],
         $data['middleName'],
