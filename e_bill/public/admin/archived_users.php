@@ -1,7 +1,7 @@
 <?php
 // ================================================
-// Manage Users
-// public/admin/manage_users.php
+// Archived Users
+// public/admin/archived_users.php
 // ================================================
 
 define('REQUIRED_ROLE', 'admin');
@@ -9,29 +9,21 @@ require_once __DIR__ . '/../../app/config/config.php';
 require_once __DIR__ . '/../../app/middleware/auth_middleware.php';
 require_once __DIR__ . '/../../app/controller/customer_controller.php';
 
-$page_title = "Manage Users";
+$page_title = "Archived Users";
 $success    = "";
 $error      = "";
 
-// Toggle user status
-if (isset($_GET['toggle']) && isset($_GET['status'])) {
-    $id         = intval($_GET['toggle']);
-    $new_status = $_GET['status'] === 'active' ? 'inactive' : 'active';
-    updateUserStatus($id, $new_status);
-    $success = "User status updated to " . strtoupper($new_status) . ".";
-}
-
-// Archive user (soft delete)
-if (isset($_GET['archive'])) {
-    $id = intval($_GET['archive']);
-    if (archiveUser($id)) {
-        $success = "User archived successfully. Their data and bills are preserved.";
+// Restore user
+if (isset($_GET['restore'])) {
+    $id = intval($_GET['restore']);
+    if (restoreUser($id)) {
+        $success = "User restored successfully and set back to Active.";
     } else {
-        $error = "Failed to archive user.";
+        $error = "Failed to restore user.";
     }
 }
 
-$users = getAllUsers();
+$users = getArchivedUsers();
 
 require_once __DIR__ . '/includes/header.php';
 ?>
@@ -60,14 +52,21 @@ require_once __DIR__ . '/includes/header.php';
 
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <span><i class="bi bi-people me-2"></i>All Registered Users</span>
+          <span><i class="bi bi-archive me-2"></i>Archived Users</span>
           <div class="d-flex align-items-center gap-2">
-            <span class="badge bg-primary"><?php echo $users->num_rows; ?> users</span>
-            <a href="archived_users.php" class="btn btn-sm btn-outline-secondary">
-              <i class="bi bi-archive me-1"></i>View Archived
+            <span class="badge bg-secondary"><?php echo $users->num_rows; ?> archived</span>
+            <a href="manage_users.php" class="btn btn-sm btn-outline-primary">
+              <i class="bi bi-people me-1"></i>Back to Active Users
             </a>
           </div>
         </div>
+
+        <?php if ($users->num_rows === 0): ?>
+          <div class="card-body text-center text-muted py-5">
+            <i class="bi bi-archive display-4 d-block mb-3 opacity-25"></i>
+            No archived users yet.
+          </div>
+        <?php else: ?>
         <div class="card-body p-0">
           <div class="table-responsive">
             <table class="table table-hover mb-0">
@@ -77,29 +76,25 @@ require_once __DIR__ . '/includes/header.php';
                   <th>Name</th>
                   <th>Username</th>
                   <th>Email</th>
-                  <th>Contact</th>
-                  <th>Date of Birth</th>
                   <th>Meter No.</th>
                   <th>Address</th>
-                  <th>Bills</th>
-                  <th>Unpaid</th>
-                  <th>Status</th>
+                  <th>Total Bills</th>
+                  <th>Unpaid Balance</th>
+                  <th>Archived On</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
-                <?php if ($users->num_rows > 0):
+                <?php
                   $count = 1;
                   while ($row = $users->fetch_assoc()): ?>
-                <tr>
+                <tr class="table-secondary">
                   <td><?php echo $count++; ?></td>
-                  <td class="fw-semibold">
+                  <td class="fw-semibold text-muted">
                     <?php echo htmlspecialchars($row['firstName'] . ' ' . $row['lastname']); ?>
                   </td>
                   <td><?php echo htmlspecialchars($row['username']); ?></td>
                   <td><?php echo htmlspecialchars($row['emailAddress']); ?></td>
-                  <td><?php echo htmlspecialchars($row['contactNumber'] ?? 'N/A'); ?></td>
-                  <td><?php echo $row['dateOfBirth'] ? date('M d, Y', strtotime($row['dateOfBirth'])) : 'N/A'; ?></td>
                   <td><?php echo htmlspecialchars($row['meter_number'] ?? 'N/A'); ?></td>
                   <td class="small">
                     <?php echo htmlspecialchars($row['barangay'] . ', ' . $row['city']); ?>
@@ -114,39 +109,24 @@ require_once __DIR__ . '/includes/header.php';
                       <span class="text-success">₱0.00</span>
                     <?php endif; ?>
                   </td>
-                  <td>
-                    <?php if ($row['status'] === 'active'): ?>
-                      <span class="badge bg-success">Active</span>
-                    <?php else: ?>
-                      <span class="badge bg-secondary">Inactive</span>
-                    <?php endif; ?>
+                  <td class="small text-muted">
+                    <?php echo $row['archived_at'] ? date('M d, Y g:i A', strtotime($row['archived_at'])) : 'N/A'; ?>
                   </td>
                   <td>
-                    <div class="d-flex gap-1">
-                      <a href="?toggle=<?php echo $row['id']; ?>&status=<?php echo $row['status']; ?>"
-                         class="btn btn-sm <?php echo $row['status'] === 'active' ? 'btn-warning' : 'btn-success'; ?>"
-                         onclick="return confirm('Toggle user status?')">
-                        <i class="bi <?php echo $row['status'] === 'active' ? 'bi-pause' : 'bi-play'; ?>"></i>
-                      </a>
-                      <a href="?archive=<?php echo $row['id']; ?>"
-                         class="btn btn-sm btn-secondary"
-                         onclick="return confirm('Archive this user? Their bills and history will be preserved.')">
-                        <i class="bi bi-archive"></i>
-                      </a>
-                    </div>
+                    <a href="?restore=<?php echo $row['id']; ?>"
+                       class="btn btn-sm btn-success"
+                       onclick="return confirm('Restore this user? They will be set back to Active.')">
+                      <i class="bi bi-arrow-counterclockwise me-1"></i>Restore
+                    </a>
                   </td>
                 </tr>
-                <?php endwhile; else: ?>
-                <tr>
-                  <td colspan="12" class="text-center text-muted py-4">
-                    No users registered yet.
-                  </td>
-                </tr>
-                <?php endif; ?>
+                <?php endwhile; ?>
               </tbody>
             </table>
           </div>
         </div>
+        <?php endif; ?>
+
       </div>
 
     </div>

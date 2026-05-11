@@ -23,19 +23,6 @@ SET time_zone = "+00:00";
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `activity_log`
---
-
-CREATE TABLE `activity_log` (
-  `id` int(11) NOT NULL,
-  `user_type` enum('admin','user') NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `action` varchar(255) NOT NULL,
-  `description` text DEFAULT NULL,
-  `ip_address` varchar(45) DEFAULT NULL,
-  `dateCreated` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -92,18 +79,6 @@ INSERT INTO `bill` (`id`, `uuid`, `user_id`, `kwh_consumed`, `amount_due`, `bill
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `notification`
---
-
-CREATE TABLE `notification` (
-  `id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `bill_id` int(11) DEFAULT NULL,
-  `message` text NOT NULL,
-  `is_read` tinyint(1) DEFAULT 0,
-  `dateCreated` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -154,17 +129,6 @@ INSERT INTO `settings` (`id`, `setting_key`, `setting_value`) VALUES
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `tariff_history`
---
-
-CREATE TABLE `tariff_history` (
-  `id` int(11) NOT NULL,
-  `rate_per_kwh` decimal(10,2) NOT NULL,
-  `effective_date` date NOT NULL,
-  `changed_by` int(11) NOT NULL,
-  `dateCreated` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -176,6 +140,7 @@ CREATE TABLE `user` (
   `id` int(11) NOT NULL,
   `uuid` varchar(255) NOT NULL,
   `meter_number` varchar(50) DEFAULT NULL,
+  `profile_picture` varchar(255) DEFAULT NULL,
   `firstName` varchar(255) NOT NULL,
   `middleName` varchar(255) DEFAULT NULL,
   `lastname` varchar(255) NOT NULL,
@@ -195,19 +160,14 @@ CREATE TABLE `user` (
 -- Dumping data for table `user`
 --
 
-INSERT INTO `user` (`id`, `uuid`, `meter_number`, `firstName`, `middleName`, `lastname`, `emailAddress`, `contactNumber`, `dateOfBirth`, `username`, `password`, `street`, `barangay`, `city`, `dateCreated`, `status`) VALUES
-(1, 'dc3bbe63-a263-4044-810f-c4a273a0e8c5', 'MTR-001', 'Redeemer', 'Baja', 'Aparece', 'apareceredeemer3@gmail.com', '09911547701', '2005-09-22', 'redeemer', '$2y$10$.KrCugCZHRayCVumYqAsC.mMTV9S9atsCylynJ/5VdSUoMC8lTPb6', 'Purok 7', 'Crossing', 'Libona', '2026-03-23 06:46:24', 'active'),
-(2, 'bf13fd81-b88c-4c85-8873-40ef3f978a20', 'MTR-002', 'Abraham', 'Baja', 'Aparece', 'apareceabraham3@gmail.com', '9923141037', '2004-01-14', 'abraham', '$2y$10$eDLQDAhARcgHWqMy05eW.uYGvi6C0tORwcFBdPLQYXWZ3ilWo.W0C', 'Bukidnon, Crossing, Libona 8706', 'Crossing', 'Crossing Libona Bukidnon', '2026-03-23 08:42:34', 'active');
+INSERT INTO `user` (`id`, `uuid`, `meter_number`, `profile_picture`, `firstName`, `middleName`, `lastname`, `emailAddress`, `contactNumber`, `dateOfBirth`, `username`, `password`, `street`, `barangay`, `city`, `dateCreated`, `status`) VALUES
+(1, 'dc3bbe63-a263-4044-810f-c4a273a0e8c5', 'MTR-001', NULL, 'Redeemer', 'Baja', 'Aparece', 'apareceredeemer3@gmail.com', '09911547701', '2005-09-22', 'redeemer', '$2y$10$.KrCugCZHRayCVumYqAsC.mMTV9S9atsCylynJ/5VdSUoMC8lTPb6', 'Purok 7', 'Crossing', 'Libona', '2026-03-23 06:46:24', 'active'),
+(2, 'bf13fd81-b88c-4c85-8873-40ef3f978a20', 'MTR-002', NULL, 'Abraham', 'Baja', 'Aparece', 'apareceabraham3@gmail.com', '9923141037', '2004-01-14', 'abraham', '$2y$10$eDLQDAhARcgHWqMy05eW.uYGvi6C0tORwcFBdPLQYXWZ3ilWo.W0C', 'Bukidnon, Crossing, Libona 8706', 'Crossing', 'Crossing Libona Bukidnon', '2026-03-23 08:42:34', 'active');
 
 --
 -- Indexes for dumped tables
 --
 
---
--- Indexes for table `activity_log`
---
-ALTER TABLE `activity_log`
-  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `admin`
@@ -225,13 +185,6 @@ ALTER TABLE `bill`
   ADD UNIQUE KEY `uuid` (`uuid`),
   ADD KEY `user_id` (`user_id`);
 
---
--- Indexes for table `notification`
---
-ALTER TABLE `notification`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`),
-  ADD KEY `bill_id` (`bill_id`);
 
 --
 -- Indexes for table `payment`
@@ -249,12 +202,6 @@ ALTER TABLE `settings`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `setting_key` (`setting_key`);
 
---
--- Indexes for table `tariff_history`
---
-ALTER TABLE `tariff_history`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `changed_by` (`changed_by`);
 
 --
 -- Indexes for table `user`
@@ -267,11 +214,6 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for dumped tables
 --
 
---
--- AUTO_INCREMENT for table `activity_log`
---
-ALTER TABLE `activity_log`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `admin`
@@ -285,11 +227,6 @@ ALTER TABLE `admin`
 ALTER TABLE `bill`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
---
--- AUTO_INCREMENT for table `notification`
---
-ALTER TABLE `notification`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `payment`
@@ -303,11 +240,6 @@ ALTER TABLE `payment`
 ALTER TABLE `settings`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
---
--- AUTO_INCREMENT for table `tariff_history`
---
-ALTER TABLE `tariff_history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `user`
@@ -325,12 +257,6 @@ ALTER TABLE `user`
 ALTER TABLE `bill`
   ADD CONSTRAINT `bill_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE;
 
---
--- Constraints for table `notification`
---
-ALTER TABLE `notification`
-  ADD CONSTRAINT `notification_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `notification_ibfk_2` FOREIGN KEY (`bill_id`) REFERENCES `bill` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `payment`
@@ -339,11 +265,6 @@ ALTER TABLE `payment`
   ADD CONSTRAINT `payment_ibfk_1` FOREIGN KEY (`bill_id`) REFERENCES `bill` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `payment_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE;
 
---
--- Constraints for table `tariff_history`
---
-ALTER TABLE `tariff_history`
-  ADD CONSTRAINT `tariff_history_ibfk_1` FOREIGN KEY (`changed_by`) REFERENCES `admin` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

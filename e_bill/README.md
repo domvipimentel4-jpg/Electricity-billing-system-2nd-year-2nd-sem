@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ⚡ Electricity Billing System
 
 A web-based Electricity Billing Management System built with PHP and MySQL for 2nd Year, 2nd Semester Midterm Project (PIT 1 & 2).
@@ -194,3 +195,6 @@ http://localhost/pit/e_bill/public/index.php
 ---
 
 *2nd Year — 2nd Semester Midterm Project · Web Systems & Technologies*
+=======
+# Electricity-billing-system-2nd-year-2nd-sem
+>>>>>>> redeemer

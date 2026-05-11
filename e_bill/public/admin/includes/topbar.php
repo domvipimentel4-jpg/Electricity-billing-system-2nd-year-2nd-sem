@@ -16,8 +16,12 @@
       <small class="text-muted"><?php echo date('l, F d, Y'); ?></small>
     </div>
   </div>
-  <div class="d-flex align-items-center gap-3">
-    <span class="text-muted small">
+  <div class="d-flex align-items-center gap-2">
+    <!-- Dark mode toggle -->
+    <button class="dark-toggle-btn" id="darkToggle" title="Toggle Dark Mode">
+      <i class="bi bi-moon-fill" id="darkIcon"></i>
+    </button>
+    <span class="text-muted small ms-1">
       <i class="bi bi-person-circle me-1"></i>
       <?php echo htmlspecialchars($_SESSION['admin_name'] ?? 'Admin'); ?>
     </span>
@@ -26,19 +30,28 @@
 
 <script>
 (function () {
-  const sidebar   = document.getElementById('adminSidebar');
-  const content   = document.querySelector('.main-content');
-  const toggleBtn = document.getElementById('sidebarToggle');
-  const overlay   = document.getElementById('sidebarOverlay');
-  const isMobile  = () => window.innerWidth <= 768;
+  const sidebar    = document.getElementById('adminSidebar');
+  const content    = document.querySelector('.main-content');
+  const toggleBtn  = document.getElementById('sidebarToggle');
+  const overlay    = document.getElementById('sidebarOverlay');
+  const darkBtn    = document.getElementById('darkToggle');
+  const darkIcon   = document.getElementById('darkIcon');
+  const isMobile   = () => window.innerWidth <= 768;
+  const DARK_KEY   = 'adminDarkMode';
 
-  // Sidebar starts collapsed by default (already has class in HTML)
-  // On desktop, check if user previously opened it
+  // ── Sidebar restore (no animation) ──
   if (!isMobile() && localStorage.getItem('adminSidebarOpen') === 'true') {
+    content.style.transition = 'none';
     sidebar.classList.remove('collapsed');
     content.classList.add('sidebar-open');
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        content.style.transition = '';
+      });
+    });
   }
 
+  // ── Sidebar toggle ──
   toggleBtn.addEventListener('click', function () {
     if (isMobile()) {
       sidebar.classList.toggle('mobile-open');
@@ -50,21 +63,26 @@
     }
   });
 
-  // Smooth navigation — no hard flash when clicking menu links
-  document.querySelectorAll('.sidebar .nav-link').forEach(function(link) {
-    link.addEventListener('click', function(e) {
-      const href = this.getAttribute('href');
-      if (!href || href === '#') return;
-      e.preventDefault();
-      document.querySelector('.main-content').style.opacity = '0';
-      document.querySelector('.main-content').style.transition = 'opacity 0.2s ease';
-      setTimeout(function() { window.location.href = href; }, 200);
-    });
-  });
-
   overlay.addEventListener('click', function () {
     sidebar.classList.remove('mobile-open');
     overlay.classList.remove('active');
   });
+
+  // ── Dark mode icon sync ──
+  function syncIcon() {
+    const isDark = document.body.classList.contains('dark-mode');
+    darkIcon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+    darkBtn.title = isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+  }
+
+  // ── Dark mode toggle ──
+  darkBtn.addEventListener('click', function () {
+    const isDark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem(DARK_KEY, isDark);
+    syncIcon();
+  });
+
+  // Set correct icon on load
+  syncIcon();
 })();
 </script>

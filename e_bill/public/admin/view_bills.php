@@ -104,7 +104,7 @@ require_once __DIR__ . '/includes/header.php';
                 <?php endwhile; else: ?>
                 <tr>
                   <td colspan="9" class="text-center text-muted py-4">
-                    No bills found. <a href="add_bill.php">Add one now</a>.
+                    No bills found. <a href="add_bill">Add one now</a>.
                   </td>
                 </tr>
                 <?php endif; ?>

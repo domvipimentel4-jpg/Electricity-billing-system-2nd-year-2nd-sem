@@ -22,10 +22,16 @@ if (!empty($_SESSION['user_profile_picture'])) {
       <small class="text-muted"><?php echo date('l, F d, Y'); ?></small>
     </div>
   </div>
-  <div class="d-flex align-items-center gap-3">
-    <a href="profile" class="d-flex align-items-center gap-2 text-decoration-none text-muted small" title="My Profile">
+  <div class="d-flex align-items-center gap-2">
+    <!-- Dark mode toggle -->
+    <button class="dark-toggle-btn" id="darkToggle" title="Toggle Dark Mode">
+      <i class="bi bi-moon-fill" id="darkIcon"></i>
+    </button>
+    <!-- Profile picture -->
+    <a href="profile" class="d-flex align-items-center gap-2 text-decoration-none text-muted small ms-1" title="My Profile">
       <img src="<?php echo $_topbar_pic; ?>" alt="Profile"
-           style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid #dbeafe;flex-shrink:0;">
+           style="width:34px;height:34px;border-radius:50%;object-fit:cover;
+                  border:2px solid #dbeafe;flex-shrink:0;">
       <span><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?></span>
     </a>
   </div>
@@ -37,15 +43,24 @@ if (!empty($_SESSION['user_profile_picture'])) {
   const content   = document.querySelector('.main-content');
   const toggleBtn = document.getElementById('sidebarToggle');
   const overlay   = document.getElementById('sidebarOverlay');
+  const darkBtn   = document.getElementById('darkToggle');
+  const darkIcon  = document.getElementById('darkIcon');
   const isMobile  = () => window.innerWidth <= 768;
+  const DARK_KEY  = 'userDarkMode';
 
-  // Sidebar starts collapsed by default
-  // Restore if user previously opened it
+  // ── Sidebar restore (no animation) ──
   if (!isMobile() && localStorage.getItem('userSidebarOpen') === 'true') {
+    content.style.transition = 'none';
     sidebar.classList.remove('collapsed');
     content.classList.add('sidebar-open');
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        content.style.transition = '';
+      });
+    });
   }
 
+  // ── Sidebar toggle ──
   toggleBtn.addEventListener('click', function () {
     if (isMobile()) {
       sidebar.classList.toggle('mobile-open');
@@ -57,21 +72,25 @@ if (!empty($_SESSION['user_profile_picture'])) {
     }
   });
 
-  // Smooth navigation when clicking menu links
-  document.querySelectorAll('.sidebar .nav-link').forEach(function(link) {
-    link.addEventListener('click', function(e) {
-      const href = this.getAttribute('href');
-      if (!href || href === '#') return;
-      e.preventDefault();
-      document.querySelector('.main-content').style.opacity = '0';
-      document.querySelector('.main-content').style.transition = 'opacity 0.2s ease';
-      setTimeout(function() { window.location.href = href; }, 200);
-    });
-  });
-
   overlay.addEventListener('click', function () {
     sidebar.classList.remove('mobile-open');
     overlay.classList.remove('active');
   });
+
+  // ── Dark mode icon sync ──
+  function syncIcon() {
+    const isDark = document.body.classList.contains('dark-mode');
+    darkIcon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+    darkBtn.title = isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+  }
+
+  // ── Dark mode toggle ──
+  darkBtn.addEventListener('click', function () {
+    const isDark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem(DARK_KEY, isDark);
+    syncIcon();
+  });
+
+  syncIcon();
 })();
 </script>

@@ -3,7 +3,7 @@
 // User Sidebar
 // public/user/includes/sidebar.php
 // ================================================
-$current = basename($_SERVER['PHP_SELF']);
+$current = pathinfo(basename($_SERVER["PHP_SELF"]), PATHINFO_FILENAME);
 ?>
 <div class="sidebar collapsed d-flex flex-column" id="userSidebar">
   <div class="sidebar-brand">

@@ -3,7 +3,7 @@
 // Admin Sidebar
 // public/admin/includes/sidebar.php
 // ================================================
-$current = basename($_SERVER['PHP_SELF']);
+$current = pathinfo(basename($_SERVER["PHP_SELF"]), PATHINFO_FILENAME);
 ?>
 <div class="sidebar collapsed d-flex flex-column" id="adminSidebar">
   <div class="sidebar-brand">
@@ -20,6 +20,11 @@ $current = basename($_SERVER['PHP_SELF']);
       <li class="nav-item">
         <a href="manage_users" class="nav-link <?php echo $current == 'manage_users' ? 'active' : ''; ?>" title="Manage Users">
           <i class="bi bi-people"></i> <span class="nav-label">Manage Users</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="archived_users" class="nav-link <?php echo $current == 'archived_users' ? 'active' : ''; ?>" title="Archived Users">
+          <i class="bi bi-archive"></i> <span class="nav-label">Archived Users</span>
         </a>
       </li>
       <li class="nav-item">

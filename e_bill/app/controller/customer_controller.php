@@ -6,7 +6,7 @@
 
 require_once __DIR__ . '/../config/config.php';
 
-// Get all users
+// Get all active (non-archived) users
 function getAllUsers() {
     global $conn;
     return $conn->query("
@@ -15,8 +15,24 @@ function getAllUsers() {
                SUM(CASE WHEN b.status = 'unpaid' THEN b.amount_due ELSE 0 END) AS total_unpaid
         FROM user u
         LEFT JOIN bill b ON u.id = b.user_id
+        WHERE u.is_archived = 0
         GROUP BY u.id
         ORDER BY u.dateCreated DESC
+    ");
+}
+
+// Get all archived users
+function getArchivedUsers() {
+    global $conn;
+    return $conn->query("
+        SELECT u.*,
+               COUNT(b.id) AS total_bills,
+               SUM(CASE WHEN b.status = 'unpaid' THEN b.amount_due ELSE 0 END) AS total_unpaid
+        FROM user u
+        LEFT JOIN bill b ON u.id = b.user_id
+        WHERE u.is_archived = 1
+        GROUP BY u.id
+        ORDER BY u.archived_at DESC
     ");
 }
 
@@ -138,25 +154,29 @@ function getProfilePictureUrl($user) {
     return 'https://ui-avatars.com/api/?name=' . $name . '&background=1a6fa3&color=fff&size=128&bold=true';
 }
 
-// Delete user (also cleans up profile picture)
-function deleteUser($id) {
+// Archive user (soft delete — data is preserved)
+function archiveUser($id) {
     global $conn;
-    $user = getUserById($id);
-    if (!empty($user['profile_picture'])) {
-        $path = UPLOADS_PATH . 'profile_pictures/' . $user['profile_picture'];
-        if (file_exists($path)) unlink($path);
-    }
-    $stmt = $conn->prepare("DELETE FROM user WHERE id = ?");
+    $stmt = $conn->prepare("UPDATE user SET is_archived = 1, archived_at = NOW(), status = 'inactive' WHERE id = ?");
     $stmt->bind_param("i", $id);
     return $stmt->execute();
 }
 
-// Get users dropdown
+// Restore archived user
+function restoreUser($id) {
+    global $conn;
+    $stmt = $conn->prepare("UPDATE user SET is_archived = 0, archived_at = NULL, status = 'active' WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    return $stmt->execute();
+}
+
+// Get users dropdown (active only)
 function getUsersDropdown() {
     global $conn;
     return $conn->query("
         SELECT id, firstName, lastname, meter_number
         FROM user
+        WHERE is_archived = 0
         ORDER BY firstName ASC
     ");
 }
