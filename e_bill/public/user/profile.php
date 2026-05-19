@@ -8,6 +8,7 @@ define('REQUIRED_ROLE', 'user');
 require_once __DIR__ . '/../../app/config/config.php';
 require_once __DIR__ . '/../../app/middleware/auth_middleware.php';
 require_once __DIR__ . '/../../app/controller/customer_controller.php';
+require_once __DIR__ . '/../../app/controller/auth_controller.php';
 
 $page_title = "My Profile";
 $user_id    = $_SESSION['user_id'];
@@ -25,7 +26,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
     } else {
         $result = updateProfilePicture($user_id, $_FILES['profile_picture']);
         if ($result['success']) {
-            // Update session so topbar reflects immediately
             $_SESSION['user_profile_picture'] = $result['filename'];
             $success = "Profile picture updated successfully!";
             $user    = getUserById($user_id);
@@ -44,23 +44,48 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
         empty($_POST['barangay'])  || empty($_POST['city'])) {
         $error = "Please fill in all required fields.";
     } else {
-        $data = [
-            'firstName'  => trim($_POST['firstName']),
-            'middleName' => trim($_POST['middleName']),
-            'lastname'   => trim($_POST['lastname']),
-            'email'      => trim($_POST['email']),
-            'contact'    => trim($_POST['contact']),
-            'dateOfBirth'=> trim($_POST['dateOfBirth']),
-            'street'     => trim($_POST['street']),
-            'barangay'   => trim($_POST['barangay']),
-            'city'       => trim($_POST['city']),
-        ];
-        $result = updateUserProfile($user_id, $data);
-        if ($result['success']) {
-            $success = "Profile updated successfully!";
-            $user    = getUserById($user_id);
-        } else {
-            $error = $result['error'];
+
+        // Validate email format (strict)
+        if (!isValidEmail(trim($_POST['email']))) {
+            $error = "Please enter a valid email address (e.g. juan@gmail.com).";
+        }
+
+        // Validate contact number if provided
+        $contact = trim($_POST['contact']);
+        if (empty($error) && !empty($contact)) {
+            if (!preg_match('/^0\d{10}$/', $contact)) {
+                $error = "Contact number must be 11 digits and start with 0 (e.g. 09171234567).";
+            } else {
+                global $conn;
+                $ccheck = $conn->prepare("SELECT id FROM user WHERE contactNumber = ? AND id != ?");
+                $ccheck->bind_param("si", $contact, $user_id);
+                $ccheck->execute();
+                $ccheck->store_result();
+                if ($ccheck->num_rows > 0) {
+                    $error = "Contact number already registered by another user.";
+                }
+            }
+        }
+
+        if (empty($error)) {
+            $data = [
+                'firstName'   => trim($_POST['firstName']),
+                'middleName'  => trim($_POST['middleName']),
+                'lastname'    => trim($_POST['lastname']),
+                'email'       => trim($_POST['email']),
+                'contact'     => $contact,
+                'dateOfBirth' => trim($_POST['dateOfBirth']),
+                'street'      => trim($_POST['street']),
+                'barangay'    => trim($_POST['barangay']),
+                'city'        => trim($_POST['city']),
+            ];
+            $result = updateUserProfile($user_id, $data);
+            if ($result['success']) {
+                $success = "Profile updated successfully!";
+                $user    = getUserById($user_id);
+            } else {
+                $error = $result['error'];
+            }
         }
     }
 }
@@ -127,9 +152,7 @@ require_once __DIR__ . '/includes/header.php';
         <!-- Left: Profile Picture + Edit Info -->
         <div class="col-md-8">
 
-          <!-- ==============================
-               Profile Picture Card
-               ============================== -->
+          <!-- Profile Picture Card -->
           <div class="card mb-4">
             <div class="card-header">
               <i class="bi bi-camera me-2"></i>Profile Picture
@@ -138,8 +161,6 @@ require_once __DIR__ . '/includes/header.php';
               <form id="profilePictureForm" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="action" value="update_picture">
                 <div class="d-flex align-items-center gap-4 flex-wrap">
-
-                  <!-- Current / Preview image -->
                   <div id="photoUploadWrapper" style="position:relative;width:110px;height:110px;">
                     <img src="<?php echo $pic_url; ?>"
                          id="profilePreviewImg"
@@ -159,7 +180,6 @@ require_once __DIR__ . '/includes/header.php';
                       </div>
                     </label>
                   </div>
-
                   <div class="flex-grow-1">
                     <p class="fw-semibold mb-1">
                       <?php echo htmlspecialchars($user['firstName'] . ' ' . $user['lastname']); ?>
@@ -170,15 +190,12 @@ require_once __DIR__ . '/includes/header.php';
                            accept="image/jpeg,image/png,image/gif,image/webp"
                            class="d-none">
                   </div>
-
                 </div>
               </form>
             </div>
           </div>
 
-          <!-- ==============================
-               Personal Info Card
-               ============================== -->
+          <!-- Personal Info Card -->
           <div class="card">
             <div class="card-header">
               <i class="bi bi-person me-2"></i>Personal Information
@@ -229,8 +246,12 @@ require_once __DIR__ . '/includes/header.php';
                       </span>
                       <input type="tel" name="contact" class="form-control"
                              placeholder="e.g. 09171234567"
-                             value="<?php echo htmlspecialchars($user['contactNumber'] ?? ''); ?>">
+                             value="<?php echo htmlspecialchars($user['contactNumber'] ?? ''); ?>"
+                             pattern="0[0-9]{10}"
+                             maxlength="11"
+                             title="Must be 11 digits and start with 0">
                     </div>
+                    <div class="form-text">Must be 11 digits and start with 0</div>
                   </div>
 
                   <div class="col-md-6">
@@ -368,9 +389,7 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <style>
-  #photoUploadWrapper {
-    cursor: pointer;
-  }
+  #photoUploadWrapper { cursor: pointer; }
   #photoUploadWrapper:hover #profile_picture_label {
     opacity: 1;
     background: rgba(0, 0, 0, 0.65);
