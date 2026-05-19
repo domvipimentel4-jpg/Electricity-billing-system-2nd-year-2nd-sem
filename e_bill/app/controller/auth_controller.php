@@ -7,6 +7,29 @@
 require_once __DIR__ . '/../config/config.php';
 
 // -----------------------------------------------
+// Helper: strict email validation
+// Must pass PHP filter AND have a known TLD (2-4 letters)
+// AND domain must have at least one dot
+// -----------------------------------------------
+function isValidEmail($email) {
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return false;
+    }
+    // Must match: something@something.com/net/org/ph etc (2-4 char TLD only)
+    if (!preg_match('/^[^@]+@[^@]+\.[a-zA-Z]{2,4}$/', $email)) {
+        return false;
+    }
+    // Common typo TLDs to block explicitly
+    $blocked_tlds = ['con', 'cmo', 'cpm', 'ocm', 'coml', 'comm', 'orgg', 'nett'];
+    $parts = explode('.', strtolower($email));
+    $tld   = end($parts);
+    if (in_array($tld, $blocked_tlds)) {
+        return false;
+    }
+    return true;
+}
+
+// -----------------------------------------------
 // Login — checks admin table first, then user
 // -----------------------------------------------
 function loginUser($username, $password) {
@@ -64,7 +87,7 @@ function loginUser($username, $password) {
 function registerUser($data, $file = null) {
     global $conn;
 
-    // Duplicate checks
+    // Check duplicate username
     $check = $conn->prepare("SELECT id FROM user WHERE username = ?");
     $check->bind_param("s", $data['username']);
     $check->execute();
@@ -73,6 +96,12 @@ function registerUser($data, $file = null) {
         return ['success' => false, 'error' => 'Username already taken. Please choose another.'];
     }
 
+    // Validate email format (strict)
+    if (!isValidEmail($data['email'])) {
+        return ['success' => false, 'error' => 'Please enter a valid email address (e.g. juan@gmail.com).'];
+    }
+
+    // Check duplicate email
     $check2 = $conn->prepare("SELECT id FROM user WHERE emailAddress = ?");
     $check2->bind_param("s", $data['email']);
     $check2->execute();
@@ -81,10 +110,30 @@ function registerUser($data, $file = null) {
         return ['success' => false, 'error' => 'Email address already registered.'];
     }
 
+    // Validate contact number — must be exactly 11 digits starting with 0
+    if (!empty($data['contact'])) {
+        if (!preg_match('/^0\d{10}$/', $data['contact'])) {
+            return ['success' => false, 'error' => 'Contact number must be 11 digits and start with 0 (e.g. 09171234567).'];
+        }
+        // Check duplicate contact number
+        $check3 = $conn->prepare("SELECT id FROM user WHERE contactNumber = ?");
+        $check3->bind_param("s", $data['contact']);
+        $check3->execute();
+        $check3->store_result();
+        if ($check3->num_rows > 0) {
+            return ['success' => false, 'error' => 'Contact number already registered. Please use a different number.'];
+        }
+    }
+
     // Auto-generate unique meter number (MTR-001, MTR-002, ...)
-    $result   = $conn->query("SELECT meter_number FROM user ORDER BY id DESC LIMIT 1");
-    $last     = $result->fetch_assoc();
-    if ($last && preg_match('/MTR-(\d+)/', $last['meter_number'], $matches)) {
+    $mtr_result = $conn->query("
+        SELECT meter_number FROM user
+        WHERE meter_number LIKE 'MTR-%'
+        ORDER BY CAST(SUBSTRING(meter_number, 5) AS UNSIGNED) DESC
+        LIMIT 1
+    ");
+    $last_mtr = $mtr_result->fetch_assoc();
+    if ($last_mtr && preg_match('/MTR-(\d+)/', $last_mtr['meter_number'], $matches)) {
         $next_num = intval($matches[1]) + 1;
     } else {
         $next_num = 1;
@@ -105,7 +154,7 @@ function registerUser($data, $file = null) {
     $uuid     = generateUUID();
     $password = password_hash($data['password'], PASSWORD_DEFAULT);
 
-    // Handle optional profile picture — saves to app/uploads/profile_pictures/
+    // Handle optional profile picture
     $profile_picture = null;
     if ($file && $file['error'] === UPLOAD_ERR_OK) {
         $allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];

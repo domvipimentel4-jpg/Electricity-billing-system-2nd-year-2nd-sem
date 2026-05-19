@@ -288,8 +288,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   <span class="input-group-text"><i class="bi bi-telephone text-muted"></i></span>
                   <input type="tel" name="contact" class="form-control"
                          placeholder="e.g. 09171234567"
-                         value="<?php echo htmlspecialchars($_POST['contact'] ?? ''); ?>" required>
+                         value="<?php echo htmlspecialchars($_POST['contact'] ?? ''); ?>"
+                         pattern="0[0-9]{10}"
+                         maxlength="11"
+                         title="Must be 11 digits and start with 0"
+                         required>
                 </div>
+                <div class="form-text">Must be 11 digits and start with 0</div>
               </div>
               <div class="col-md-6">
                 <label class="form-label small fw-semibold">
