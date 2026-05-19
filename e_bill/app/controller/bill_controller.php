@@ -129,10 +129,30 @@ function payBill($bill_id, $user_id, $amount, $method) {
     }
 }
 
+// Get payment by bill ID (used to retrieve receipt UUID for past payments)
+function getPaymentByBillId($bill_id) {
+    global $conn;
+    $stmt = $conn->prepare("
+        SELECT p.*, u.firstName, u.lastname, u.meter_number, u.emailAddress
+        FROM payment p
+        JOIN user u ON p.user_id = u.id
+        WHERE p.bill_id = ?
+        LIMIT 1
+    ");
+    $stmt->bind_param("i", $bill_id);
+    $stmt->execute();
+    return $stmt->get_result()->fetch_assoc();
+}
+
 // Get payment by UUID
 function getPaymentByUuid($uuid) {
     global $conn;
-    $stmt = $conn->prepare("\n        SELECT p.*, u.firstName, u.lastname, u.meter_number, u.emailAddress\n        FROM payment p\n        JOIN user u ON p.user_id = u.id\n        WHERE p.uuid = ?\n    ");
+    $stmt = $conn->prepare("
+        SELECT p.*, u.firstName, u.lastname, u.meter_number, u.emailAddress
+        FROM payment p
+        JOIN user u ON p.user_id = u.id
+        WHERE p.uuid = ?
+    ");
     $stmt->bind_param("s", $uuid);
     $stmt->execute();
     return $stmt->get_result()->fetch_assoc();

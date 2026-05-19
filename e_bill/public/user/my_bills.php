@@ -86,10 +86,19 @@ require_once __DIR__ . '/includes/header.php';
                          class="btn btn-sm btn-success">
                         <i class="bi bi-credit-card me-1"></i>Pay Now
                       </a>
-                    <?php else: ?>
-                      <span class="text-muted small">
-                        <i class="bi bi-check-circle text-success"></i> Paid
-                      </span>
+                    <?php else:
+                      $payment = getPaymentByBillId($row['id']);
+                    ?>
+                      <?php if ($payment): ?>
+                        <a href="download_receipt.php?uuid=<?php echo urlencode($payment['uuid']); ?>"
+                           class="btn btn-sm btn-outline-primary">
+                          <i class="bi bi-download me-1"></i>Receipt
+                        </a>
+                      <?php else: ?>
+                        <span class="text-muted small">
+                          <i class="bi bi-check-circle text-success"></i> Paid
+                        </span>
+                      <?php endif; ?>
                     <?php endif; ?>
                   </td>
                 </tr>
